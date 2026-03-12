@@ -20,6 +20,13 @@ const ALLOWED_ORIGINS = [
   'https://www.remedocs.com',
 ];
 
+// Map Stripe product IDs → plan names (fallback when metadata isn't set on payment link)
+const PRODUCT_PLAN_MAP = {
+  'prod_U8Ey5Mrk9yEjSr': 'starter',
+  // Add Growth product ID here once created, e.g.:
+  // 'prod_XXXXXXXXXXXXXXX': 'growth',
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN FETCH HANDLER
 // ─────────────────────────────────────────────────────────────────────────────
@@ -228,8 +235,11 @@ async function handleStripeWebhook(request, env) {
     const session       = event.data.object;
     const customerEmail = session.customer_details?.email || session.customer_email || '';
     const customerName  = session.customer_details?.name  || '';
-    // "plan" must be set as metadata on the Stripe Payment Link
-    const plan          = session.metadata?.plan || 'starter';
+    // Resolve plan: prefer metadata, fall back to product ID lookup, then default to 'starter'
+    const lineItemProductId = session.line_items?.data?.[0]?.price?.product;
+    const plan = session.metadata?.plan
+      || (lineItemProductId && PRODUCT_PLAN_MAP[lineItemProductId])
+      || 'starter';
 
     if (customerEmail) {
       const planLabel    = capitalize(plan);
