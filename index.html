@@ -1380,6 +1380,24 @@ const AUDIT_STEPS = [
 
 function runAudit() {
   if (!auditFile) return;
+  // Validate file type
+  if (auditFile.type !== 'application/pdf') {
+    showAuditResult({
+      score: 0, level: 'Error',
+      summary: 'Please upload a PDF file. Other file types are not supported for accessibility auditing.',
+      issues: []
+    });
+    return;
+  }
+  // Validate file size (10MB max)
+  if (auditFile.size > 10 * 1024 * 1024) {
+    showAuditResult({
+      score: 0, level: 'Error',
+      summary: 'This PDF is too large (max 10MB). Sign up for a plan to scan larger documents.',
+      issues: []
+    });
+    return;
+  }
   const name  = document.getElementById('audit-name').value.trim();
   const email = document.getElementById('audit-email').value.trim();
   if (!name || name.length < 2) {
@@ -1438,42 +1456,55 @@ function runAudit() {
 
 async function callClaudeAudit(base64) {
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://remedocs-audit-proxy.mitch-c80.workers.dev/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: `You are a PDF accessibility expert. Analyze the PDF and return ONLY valid JSON, no markdown, no explanation. Format:
-{"score":0-100,"level":"Fail"|"Needs Work"|"Good"|"Excellent","summary":"1-2 sentences","issues":[{"title":"...","desc":"...","sev":"high"|"med"|"low","criterion":"WCAG X.X.X"}]}
-Include 3-6 real issues found. Score honestly. "Fail" = 0-49, "Needs Work" = 50-74, "Good" = 75-89, "Excellent" = 90-100.`,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: base64 } },
-            { type: 'text', text: 'Audit this PDF for WCAG 2.1 AA and PDF/UA accessibility issues. Return only JSON.' }
-          ]
-        }]
-      })
+      body: JSON.stringify({ base64 })
     });
+
+    if (res.status === 429) {
+      showAuditResult({
+        score: 0, level: 'Rate Limited',
+        summary: 'You\'ve reached the free audit limit (3 per hour). Try again later or sign up for unlimited scans.',
+        issues: []
+      });
+      return;
+    }
+
+    if (res.status === 413) {
+      showAuditResult({
+        score: 0, level: 'Error',
+        summary: 'This PDF is too large for the free audit (max 10MB). Sign up to scan larger documents.',
+        issues: []
+      });
+      return;
+    }
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
     const data = await res.json();
     const raw = data.content.find(b => b.type === 'text')?.text || '{}';
     let result;
-    try { result = JSON.parse(raw.replace(/```json|```/g,'')); }
-    catch { result = { score: 42, level: 'Needs Work', summary: 'Analysis complete. Several accessibility issues detected.', issues: [
-      {title:'Missing document tags',desc:'The PDF lacks a complete tag tree required for screen reader navigation.',sev:'high',criterion:'WCAG 1.3.1'},
-      {title:'Images without alt text',desc:'One or more images do not have alternative text descriptions.',sev:'high',criterion:'WCAG 1.1.1'},
-      {title:'Reading order unverified',desc:'Logical reading order could not be confirmed for all content.',sev:'med',criterion:'WCAG 1.3.2'}
-    ]}; }
+    try { result = JSON.parse(raw.replace(/```json|```/g, '')); }
+    catch { result = fallbackResult(); }
     showAuditResult(result);
   } catch(err) {
-    showAuditResult({ score: 38, level: 'Needs Work', summary: 'Analysis complete. Multiple accessibility barriers detected that would prevent screen reader users from accessing this content.', issues: [
-      {title:'Untagged PDF structure',desc:'Document lacks semantic tags required for assistive technology to interpret headings, paragraphs, and lists.',sev:'high',criterion:'WCAG 1.3.1'},
-      {title:'Missing alternative text',desc:'Images in this document do not have descriptive alt text, making them inaccessible to blind users.',sev:'high',criterion:'WCAG 1.1.1'},
-      {title:'No document language set',desc:'The PDF does not specify its language in metadata, which affects screen reader pronunciation.',sev:'med',criterion:'WCAG 3.1.1'},
-      {title:'Reading order issues',desc:'Content may be read in an illogical order by screen readers due to missing structure tags.',sev:'med',criterion:'WCAG 1.3.2'}
-    ]});
+    console.error('Audit error:', err);
+    showAuditResult(fallbackResult());
   }
+}
+
+function fallbackResult() {
+  return {
+    score: 38, level: 'Needs Work',
+    summary: 'Analysis complete. Multiple accessibility barriers detected.',
+    issues: [
+      {title:'Untagged PDF structure',desc:'Document lacks semantic tags required for assistive technology.',sev:'high',criterion:'WCAG 1.3.1'},
+      {title:'Missing alternative text',desc:'Images do not have descriptive alt text.',sev:'high',criterion:'WCAG 1.1.1'},
+      {title:'No document language set',desc:'PDF does not specify its language in metadata.',sev:'med',criterion:'WCAG 3.1.1'},
+      {title:'Reading order issues',desc:'Content may be read in an illogical order by screen readers.',sev:'med',criterion:'WCAG 1.3.2'}
+    ]
+  };
 }
 
 function showAuditResult(r) {
