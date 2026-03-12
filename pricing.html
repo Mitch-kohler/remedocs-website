@@ -4,11 +4,443 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Pricing — RemeDocs PDF Accessibility</title>
-<meta name="description" content="Simple, transparent pricing for PDF accessibility compliance."/>
-<link rel="canonical" href="https://remedocs.com/"/>
-<script>window.location.replace('/');</script>
+<meta name="description" content="Simple, transparent pricing for automated PDF accessibility compliance. Free plan available. Starter from $29.99/mo."/>
+<link rel="canonical" href="https://remedocs.com/pricing.html"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07090D;--bg-1:#0C0F15;--bg-2:#111520;--bg-3:#161B28;
+  --line:rgba(255,255,255,0.07);--line-2:rgba(255,255,255,0.12);
+  --text:#E8EAF0;--text-2:#8A8FA8;--text-3:#545870;
+  --mint:#0CF2B4;--mint-dim:rgba(12,242,180,0.09);--mint-glow:rgba(12,242,180,0.22);
+  --blue:#3B8EF8;--red:#F25C5C;--amber:#F2A93B;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9998;opacity:.5;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 3rem;height:60px;border-bottom:1px solid var(--line);background:rgba(7,9,13,0.82);backdrop-filter:blur(20px) saturate(1.4);}
+.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.15rem;letter-spacing:-.03em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--mint);display:inline-block;}
+nav ul{display:flex;gap:2rem;list-style:none;align-items:center;}
+nav ul a{color:var(--text-2);text-decoration:none;font-size:.82rem;font-weight:500;letter-spacing:.01em;transition:color .15s;}
+nav ul a:hover,nav ul a.nav-active{color:var(--text);}
+.nav-btn{background:var(--mint);color:#04120D;font-family:'Instrument Sans',sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.02em;padding:.45rem 1.1rem;border-radius:6px;border:none;cursor:pointer;transition:opacity .15s,box-shadow .15s;}
+.nav-btn:hover{opacity:.88;box-shadow:0 0 20px var(--mint-glow);}
+.nav-btn-ghost{border:1px solid var(--line-2);color:var(--text-2);font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:.8rem;letter-spacing:.01em;padding:.43rem 1.1rem;border-radius:6px;text-decoration:none;transition:border-color .15s,color .15s;}
+.nav-btn-ghost:hover{border-color:var(--text-2);color:var(--text);}
+
+/* HERO */
+.pricing-hero{padding:130px 3rem 5rem;text-align:center;position:relative;overflow:hidden;}
+.hero-glow{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:900px;height:500px;background:radial-gradient(ellipse at 50% 0%,rgba(12,242,180,.11) 0%,transparent 70%);pointer-events:none;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 30%,transparent 70%);pointer-events:none;}
+.pill{display:inline-flex;align-items:center;gap:.45rem;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);border:1px solid rgba(12,242,180,.25);background:var(--mint-dim);padding:.3rem .85rem;border-radius:100px;margin-bottom:1.75rem;}
+.pill-dot{width:5px;height:5px;border-radius:50%;background:var(--mint);animation:blink 2s ease infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.pricing-hero h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(2.4rem,5vw,3.8rem);font-weight:800;letter-spacing:-.04em;line-height:1.04;margin-bottom:1.1rem;}
+.pricing-hero h1 .accent{background:linear-gradient(135deg,var(--mint) 0%,#3BFFD4 50%,#0CF2B4 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.pricing-hero p{font-size:1rem;color:var(--text-2);max-width:420px;margin:.75rem auto 0;line-height:1.75;}
+
+/* PRICING GRID */
+.pricing-section{padding:3rem 3rem 6rem;max-width:1240px;margin:0 auto;}
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;align-items:start;}
+.plan-card{background:var(--bg-1);border:1px solid var(--line);border-radius:16px;padding:2rem;display:flex;flex-direction:column;position:relative;transition:border-color .2s,transform .2s;}
+.plan-card:hover{border-color:var(--line-2);transform:translateY(-2px);}
+.plan-card.featured{border-color:rgba(12,242,180,.35);background:linear-gradient(160deg,var(--bg-1) 0%,rgba(12,242,180,.05) 100%);}
+.plan-card.featured:hover{border-color:rgba(12,242,180,.55);}
+.plan-badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);background:var(--mint-dim);border:1px solid rgba(12,242,180,.2);padding:.22rem .7rem;border-radius:100px;margin-bottom:.9rem;width:fit-content;}
+.plan-name{font-family:'Bricolage Grotesque',sans-serif;font-size:1.15rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.4rem;}
+.plan-desc{font-size:.78rem;color:var(--text-2);line-height:1.6;margin-bottom:1.5rem;min-height:2.8rem;}
+.plan-price{margin-bottom:1.5rem;}
+.plan-amount{font-family:'Bricolage Grotesque',sans-serif;font-size:2.8rem;font-weight:800;letter-spacing:-.04em;line-height:1;display:flex;align-items:flex-start;gap:2px;}
+.plan-amount .currency{font-size:1.1rem;font-weight:600;font-family:'Instrument Sans',sans-serif;color:var(--text-2);margin-top:.45rem;}
+.plan-amount .cents{font-size:1.5rem;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;align-self:flex-end;margin-bottom:.12rem;}
+.plan-amount.custom-price{font-size:2rem;align-items:center;}
+.plan-period{font-size:.75rem;color:var(--text-3);margin-top:.3rem;}
+.plan-divider{height:1px;background:var(--line);margin:1.5rem 0;}
+.plan-features{display:flex;flex-direction:column;gap:.65rem;margin-bottom:2rem;flex:1;}
+.plan-feature{display:flex;align-items:flex-start;gap:.65rem;font-size:.79rem;color:var(--text-2);line-height:1.45;}
+.feat-icon{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem;}
+.feat-icon.on{background:var(--mint-dim);border:1px solid rgba(12,242,180,.25);}
+.feat-icon.off{background:rgba(255,255,255,.03);border:1px solid var(--line);}
+.feat-icon svg{width:8px;height:8px;}
+.plan-cta{display:block;text-align:center;padding:.78rem 1.25rem;border-radius:9px;font-weight:600;font-size:.85rem;font-family:'Instrument Sans',sans-serif;text-decoration:none;transition:all .2s;cursor:pointer;border:none;width:100%;letter-spacing:.01em;}
+.cta-primary{background:var(--mint);color:#04120D;}
+.cta-primary:hover{box-shadow:0 6px 30px var(--mint-glow);opacity:.92;}
+.cta-outline{background:transparent;border:1px solid var(--line-2) !important;color:var(--text-2);}
+.cta-outline:hover{border-color:var(--text-2) !important;color:var(--text);}
+.cta-mint-ghost{background:rgba(12,242,180,.07);border:1px solid rgba(12,242,180,.22) !important;color:var(--mint);}
+.cta-mint-ghost:hover{background:rgba(12,242,180,.13);}
+
+/* TRUST BAR */
+.trust-bar{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:2rem 3rem;display:flex;align-items:center;justify-content:center;gap:3rem;flex-wrap:wrap;}
+.trust-item{display:flex;align-items:center;gap:.55rem;font-size:.77rem;color:var(--text-3);}
+
+/* FAQ */
+.faq-strip{padding:4rem 3rem;max-width:760px;margin:0 auto;}
+.faq-strip h2{font-family:'Bricolage Grotesque',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:-.03em;margin-bottom:2rem;text-align:center;}
+.faq-item{border-bottom:1px solid var(--line);padding:1.1rem 0;}
+.faq-q{width:100%;background:none;border:none;color:var(--text);font-family:'Instrument Sans',sans-serif;font-size:.88rem;font-weight:600;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:0;}
+.faq-icon{color:var(--text-3);font-size:1.2rem;line-height:1;transition:transform .2s;flex-shrink:0;}
+.faq-q.open .faq-icon{transform:rotate(45deg);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.faq-a.open{max-height:200px;}
+.faq-a-inner{font-size:.82rem;color:var(--text-2);line-height:1.75;padding:.75rem 0 .25rem;}
+
+/* FOOTER */
+footer{border-top:1px solid var(--line);padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.footer-logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;letter-spacing:-.03em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.footer-links{display:flex;gap:1.5rem;}
+.footer-links a{font-size:.75rem;color:var(--text-3);text-decoration:none;transition:color .15s;}
+.footer-links a:hover{color:var(--text-2);}
+.footer-copy{font-size:.72rem;color:var(--text-3);}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(7,9,13,.88);backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:1.5rem;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--bg-1);border:1px solid var(--line-2);border-radius:18px;padding:2.5rem;width:100%;max-width:460px;position:relative;}
+.modal-close{position:absolute;top:1.2rem;right:1.2rem;background:none;border:none;color:var(--text-3);font-size:1rem;cursor:pointer;line-height:1;transition:color .15s;padding:.3rem;}
+.modal-close:hover{color:var(--text);}
+.modal-tag{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);margin-bottom:.6rem;}
+.modal-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.6rem;letter-spacing:-.03em;line-height:1.1;margin-bottom:.5rem;}
+.modal-sub{font-size:.83rem;color:var(--text-2);line-height:1.65;margin-bottom:1.75rem;}
+.modal-form{display:flex;flex-direction:column;gap:.9rem;}
+.field-label{font-size:.7rem;font-weight:600;color:var(--text-2);letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:.35rem;}
+.field-input{width:100%;background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px;padding:.72rem 1rem;font-family:'Instrument Sans',sans-serif;font-size:.875rem;color:var(--text);outline:none;transition:border-color .15s;}
+.field-input:focus{border-color:rgba(12,242,180,.45);}
+.field-input::placeholder{color:var(--text-3);}
+textarea.field-input{resize:vertical;min-height:85px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;}
+.modal-submit{margin-top:.3rem;width:100%;padding:.82rem;background:var(--mint);color:#04120D;border:none;border-radius:9px;font-family:'Instrument Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:box-shadow .2s,opacity .15s;letter-spacing:.01em;}
+.modal-submit:hover{box-shadow:0 6px 30px var(--mint-glow);opacity:.92;}
+.modal-submit:disabled{opacity:.45;cursor:not-allowed;}
+.modal-error{display:none;font-size:.78rem;color:var(--red);padding:.5rem .8rem;background:rgba(242,92,92,.08);border:1px solid rgba(242,92,92,.2);border-radius:6px;margin-top:.25rem;}
+.modal-success{display:none;text-align:center;padding:2rem 0 1rem;}
+.modal-success-icon{font-size:2.8rem;margin-bottom:.8rem;}
+.modal-success-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.3rem;margin-bottom:.5rem;}
+.modal-success-text{font-size:.84rem;color:var(--text-2);line-height:1.7;}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.fade-up{animation:fadeUp .5s ease both;}
+
+/* RESPONSIVE */
+@media(max-width:1024px){.pricing-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){
+  .pricing-grid{grid-template-columns:1fr;}
+  .pricing-hero{padding:110px 1.5rem 3.5rem;}
+  .pricing-section{padding:2rem 1.5rem 4rem;}
+  .trust-bar{flex-direction:column;align-items:flex-start;gap:1.25rem;padding:2rem 1.5rem;}
+  .faq-strip{padding:3rem 1.5rem;}
+  nav{padding:0 1.25rem;}
+  .nav-links{display:none;}
+  footer{flex-direction:column;align-items:flex-start;padding:1.5rem;}
+  .field-row{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
-<p>Redirecting to <a href="/">RemeDocs</a>...</p>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo"><span class="logo-dot"></span>RemeDocs</a>
+  <ul class="nav-links">
+    <li><a href="/?page=how">How it works</a></li>
+    <li><a href="/?page=blog">Blog</a></li>
+    <li><a href="/#faq">FAQ</a></li>
+    <li><a href="/pricing.html" class="nav-active">Pricing</a></li>
+    <li><a href="/?page=audit" class="nav-btn-ghost">Free PDF audit</a></li>
+    <li><button onclick="openEnterpriseModal()" class="nav-btn">Get in touch</button></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="pricing-hero">
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+  <div class="pill fade-up"><span class="pill-dot"></span>SIMPLE PRICING</div>
+  <h1 class="fade-up" style="animation-delay:.08s">Pay for what you use.<br><span class="accent">Scale when you're ready.</span></h1>
+  <p class="fade-up" style="animation-delay:.16s">No setup fees. No long-term contracts. Cancel anytime.</p>
+</section>
+
+<!-- PRICING GRID -->
+<section class="pricing-section">
+  <div class="pricing-grid">
+
+    <!-- FREE -->
+    <div class="plan-card fade-up" style="animation-delay:.05s">
+      <div class="plan-name">Free</div>
+      <div class="plan-desc">Try RemeDocs risk-free. No credit card required.</div>
+      <div class="plan-price">
+        <div class="plan-amount"><span class="currency">$</span>0</div>
+        <div class="plan-period">forever free</div>
+      </div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>5 PDF audits per month</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>WCAG 2.1 AA compliance scan</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Accessibility score + issue report</span></div>
+        <div class="plan-feature"><div class="feat-icon off"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#545870" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="color:var(--text-3)">Full PDF remediation output</span></div>
+        <div class="plan-feature"><div class="feat-icon off"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#545870" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="color:var(--text-3)">API access</span></div>
+        <div class="plan-feature"><div class="feat-icon off"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#545870" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="color:var(--text-3)">Bulk upload</span></div>
+      </div>
+      <button class="plan-cta cta-outline" onclick="openFreeModal()">Get started free →</button>
+    </div>
+
+    <!-- STARTER -->
+    <div class="plan-card fade-up" style="animation-delay:.12s">
+      <div class="plan-name">Starter</div>
+      <div class="plan-desc">For teams remediating a steady stream of documents.</div>
+      <div class="plan-price">
+        <div class="plan-amount"><span class="currency">$</span>29<span class="cents">.99</span></div>
+        <div class="plan-period">per month</div>
+      </div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>50 remediated PDFs per month</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Full WCAG 2.1 AA + PDF/UA output</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>AI alt text for images &amp; figures</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Bookmark tree auto-generation</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Priority email support</span></div>
+        <div class="plan-feature"><div class="feat-icon off"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#545870" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span style="color:var(--text-3)">REST API access</span></div>
+      </div>
+      <a href="STRIPE_STARTER_LINK" class="plan-cta cta-outline">Get Starter →</a>
+    </div>
+
+    <!-- GROWTH — FEATURED -->
+    <div class="plan-card featured fade-up" style="animation-delay:.19s">
+      <div class="plan-badge">
+        <svg width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="#0CF2B4"/></svg>
+        Most popular
+      </div>
+      <div class="plan-name">Growth</div>
+      <div class="plan-desc">For organizations scaling accessible document output.</div>
+      <div class="plan-price">
+        <div class="plan-amount"><span class="currency">$</span>99<span class="cents">.99</span></div>
+        <div class="plan-period">per month</div>
+      </div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>250 remediated PDFs per month</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Everything in Starter</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Full REST API + webhooks</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Bulk upload (50 PDFs at once)</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Section 508 compliance reports</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Dedicated Slack support channel</span></div>
+      </div>
+      <a href="STRIPE_GROWTH_LINK" class="plan-cta cta-primary">Get Growth →</a>
+    </div>
+
+    <!-- ENTERPRISE -->
+    <div class="plan-card fade-up" style="animation-delay:.26s">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-desc">Custom volume, SLAs, and integrations for large organizations.</div>
+      <div class="plan-price">
+        <div class="plan-amount custom-price">Custom</div>
+        <div class="plan-period">tailored to your needs</div>
+      </div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Unlimited PDF remediation</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Custom SLA + uptime guarantee</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>SSO / SAML integration</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Dedicated account manager</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>On-premise or private cloud deploy</span></div>
+        <div class="plan-feature"><div class="feat-icon on"><svg viewBox="0 0 8 8" fill="none"><path d="M1.5 4l1.75 1.75L6.5 2.5" stroke="#0CF2B4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Custom compliance reporting</span></div>
+      </div>
+      <button class="plan-cta cta-mint-ghost" onclick="openEnterpriseModal()">Contact sales →</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust-bar">
+  <div class="trust-item">🔒 SOC 2 Type II compliant</div>
+  <div class="trust-item">💳 Payments secured by Stripe</div>
+  <div class="trust-item">↩️ Cancel anytime, no penalty</div>
+  <div class="trust-item">📋 WCAG 2.1 AA · PDF/UA · Section 508</div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-strip">
+  <h2>Common questions</h2>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">What counts as a "remediated PDF"?<span class="faq-icon">+</span></button>
+    <div class="faq-a"><div class="faq-a-inner">Each PDF you upload and receive back as a fully tagged, compliant file counts as one remediation. Audit-only scans don't count against your limit.</div></div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">Can I upgrade or downgrade at any time?<span class="faq-icon">+</span></button>
+    <div class="faq-a"><div class="faq-a-inner">Yes. Upgrades take effect immediately (prorated). Downgrades apply at the start of your next billing cycle.</div></div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">Do unused remediations roll over?<span class="faq-icon">+</span></button>
+    <div class="faq-a"><div class="faq-a-inner">No — unused remediations reset each billing month. If you consistently hit your limit, upgrading to the next tier is the most cost-effective path.</div></div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">What compliance standards do you support?<span class="faq-icon">+</span></button>
+    <div class="faq-a"><div class="faq-a-inner">RemeDocs produces output compliant with WCAG 2.1 Level AA, PDF/UA-1 (ISO 14289), and Section 508. Growth and Enterprise plans include explicit Section 508 compliance reports.</div></div>
+  </div>
+  <div class="faq-item">
+    <button class="faq-q" onclick="toggleFaq(this)">Is there a volume discount for large batches?<span class="faq-icon">+</span></button>
+    <div class="faq-a"><div class="faq-a-inner">Yes — Enterprise plans are priced on monthly volume with significant per-document discounts at scale. Contact sales for a custom quote.</div></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <a href="/" class="footer-logo"><span class="logo-dot"></span>RemeDocs</a>
+  <div class="footer-links">
+    <a href="/?page=how">How it works</a>
+    <a href="/?page=blog">Blog</a>
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+  </div>
+  <span class="footer-copy">© 2026 RemeDocs, Inc.</span>
+</footer>
+
+<!-- FREE PLAN MODAL -->
+<div id="free-modal" class="modal-overlay" onclick="if(event.target===this)closeFreeModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeFreeModal()" aria-label="Close">✕</button>
+    <div id="free-form-wrap">
+      <div class="modal-tag">Free Plan</div>
+      <div class="modal-title">Get started for free</div>
+      <div class="modal-sub">No credit card required. Audit up to 5 PDFs per month instantly.</div>
+      <form class="modal-form" onsubmit="submitFreeForm(event)">
+        <div>
+          <label class="field-label" for="free-name">Full name</label>
+          <input id="free-name" class="field-input" type="text" placeholder="Jane Smith" required autocomplete="name"/>
+        </div>
+        <div>
+          <label class="field-label" for="free-email">Work email</label>
+          <input id="free-email" class="field-input" type="email" placeholder="jane@yourorg.com" required autocomplete="email"/>
+        </div>
+        <div id="free-error" class="modal-error" role="alert"></div>
+        <button type="submit" id="free-submit" class="modal-submit">Create free account →</button>
+      </form>
+    </div>
+    <div id="free-success" class="modal-success" role="status">
+      <div class="modal-success-icon">✅</div>
+      <div class="modal-success-title">You're in!</div>
+      <div class="modal-success-text">Check your inbox — we've sent a link to set up your account. Redirecting you now…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ENTERPRISE / CONTACT MODAL -->
+<div id="enterprise-modal" class="modal-overlay" onclick="if(event.target===this)closeEnterpriseModal()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeEnterpriseModal()" aria-label="Close">✕</button>
+    <div id="ent-form-wrap">
+      <div class="modal-tag">Enterprise</div>
+      <div class="modal-title">Let's talk</div>
+      <div class="modal-sub">Tell us about your document volume and compliance requirements. We'll respond within one business day.</div>
+      <form class="modal-form" onsubmit="submitEnterpriseForm(event)">
+        <div class="field-row">
+          <div>
+            <label class="field-label" for="ent-first">First name</label>
+            <input id="ent-first" class="field-input" type="text" placeholder="Jane" required autocomplete="given-name"/>
+          </div>
+          <div>
+            <label class="field-label" for="ent-last">Last name</label>
+            <input id="ent-last" class="field-input" type="text" placeholder="Smith" required autocomplete="family-name"/>
+          </div>
+        </div>
+        <div>
+          <label class="field-label" for="ent-email">Work email</label>
+          <input id="ent-email" class="field-input" type="email" placeholder="jane@yourorg.com" required autocomplete="email"/>
+        </div>
+        <div>
+          <label class="field-label" for="ent-org">Organization</label>
+          <input id="ent-org" class="field-input" type="text" placeholder="City of Springfield" required autocomplete="organization"/>
+        </div>
+        <div>
+          <label class="field-label" for="ent-message">Tell us about your needs</label>
+          <textarea id="ent-message" class="field-input" placeholder="Monthly PDF volume, compliance standards, integrations needed…" required></textarea>
+        </div>
+        <div id="ent-error" class="modal-error" role="alert"></div>
+        <button type="submit" id="ent-submit" class="modal-submit">Send message →</button>
+      </form>
+    </div>
+    <div id="ent-success" class="modal-success" role="status">
+      <div class="modal-success-icon">📬</div>
+      <div class="modal-success-title">Message received</div>
+      <div class="modal-success-text">Someone from our team will be in touch within one business day. Check your inbox for a confirmation.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Replace with your deployed Cloudflare Worker URL ──────────────────────────
+const WORKER_URL = 'WORKER_URL_PLACEHOLDER';
+// e.g. 'https://remedocs-worker.your-subdomain.workers.dev'
+// ─────────────────────────────────────────────────────────────────────────────
+
+function openFreeModal() { document.getElementById('free-modal').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeFreeModal() { document.getElementById('free-modal').classList.remove('open'); document.body.style.overflow=''; }
+function openEnterpriseModal() { document.getElementById('enterprise-modal').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeEnterpriseModal() { document.getElementById('enterprise-modal').classList.remove('open'); document.body.style.overflow=''; }
+document.addEventListener('keydown', e => { if(e.key==='Escape'){closeFreeModal();closeEnterpriseModal();} });
+
+async function submitFreeForm(e) {
+  e.preventDefault();
+  const name  = document.getElementById('free-name').value.trim();
+  const email = document.getElementById('free-email').value.trim();
+  const btn   = document.getElementById('free-submit');
+  const err   = document.getElementById('free-error');
+  btn.disabled = true; btn.textContent = 'Creating account…'; err.style.display='none';
+  try {
+    const res = await fetch(WORKER_URL + '/capture-lead', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ full_name: name, work_email: email, plan: 'free' })
+    });
+    if (!res.ok) throw new Error();
+    document.getElementById('free-form-wrap').style.display = 'none';
+    document.getElementById('free-success').style.display   = 'block';
+    setTimeout(() => {
+      window.location.href = 'https://app.remedocs.com/auth/register?plan=free&email=' + encodeURIComponent(email);
+    }, 2000);
+  } catch {
+    err.textContent = 'Something went wrong. Please try again or email hello@remedocs.com.';
+    err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Create free account →';
+  }
+}
+
+async function submitEnterpriseForm(e) {
+  e.preventDefault();
+  const name    = document.getElementById('ent-first').value.trim() + ' ' + document.getElementById('ent-last').value.trim();
+  const email   = document.getElementById('ent-email').value.trim();
+  const company = document.getElementById('ent-org').value.trim();
+  const message = document.getElementById('ent-message').value.trim();
+  const btn = document.getElementById('ent-submit');
+  const err = document.getElementById('ent-error');
+  btn.disabled = true; btn.textContent = 'Sending…'; err.style.display='none';
+  try {
+    const res = await fetch(WORKER_URL + '/contact', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ name, email, company, message, type: 'enterprise' })
+    });
+    if (!res.ok) throw new Error();
+    document.getElementById('ent-form-wrap').style.display = 'none';
+    document.getElementById('ent-success').style.display   = 'block';
+  } catch {
+    err.textContent = 'Something went wrong. Please try again or email sales@remedocs.com.';
+    err.style.display = 'block'; btn.disabled = false; btn.textContent = 'Send message →';
+  }
+}
+
+function toggleFaq(btn) {
+  const answer = btn.nextElementSibling;
+  const isOpen = answer.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
+  document.querySelectorAll('.faq-q').forEach(q => q.classList.remove('open'));
+  if (!isOpen) { answer.classList.add('open'); btn.classList.add('open'); }
+}
+</script>
 </body>
 </html>
