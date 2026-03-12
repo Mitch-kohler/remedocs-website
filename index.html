@@ -1,1543 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>RemeDocs — Automated PDF Accessibility</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
-<style>
-:root{
-  --bg:#07090D;--bg-1:#0C0F15;--bg-2:#111520;--bg-3:#161B28;
-  --line:rgba(255,255,255,0.07);--line-2:rgba(255,255,255,0.12);
-  --text:#E8EAF0;--text-2:#8A8FA8;--text-3:#545870;
-  --mint:#0CF2B4;--mint-dim:rgba(12,242,180,0.09);--mint-glow:rgba(12,242,180,0.22);
-  --blue:#3B8EF8;--red:#F25C5C;--amber:#F2A93B;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
-body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9998;opacity:.5;}
-
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 3rem;height:60px;border-bottom:1px solid var(--line);background:rgba(7,9,13,0.82);backdrop-filter:blur(20px) saturate(1.4);transition:height .3s;}
-.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.15rem;letter-spacing:-.03em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:6px;}
-.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--mint);display:inline-block;}
-nav ul{display:flex;gap:2rem;list-style:none;align-items:center;}
-nav ul a{color:var(--text-2);text-decoration:none;font-size:.82rem;font-weight:500;letter-spacing:.01em;transition:color .15s;}
-nav ul a:hover{color:var(--text);}
-.nav-btn{background:var(--mint);color:#04120D;font-family:'Instrument Sans',sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.02em;padding:.45rem 1.1rem;border-radius:6px;text-decoration:none;transition:opacity .15s,box-shadow .15s;}
-.nav-btn:hover{opacity:.88;box-shadow:0 0 20px var(--mint-glow);}
-.nav-btn-ghost{border:1px solid var(--line-2);color:var(--text-2);font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:.8rem;letter-spacing:.01em;padding:.43rem 1.1rem;border-radius:6px;text-decoration:none;transition:border-color .15s,color .15s;}
-.nav-btn-ghost:hover{border-color:var(--text-2);color:var(--text);}
-
-/* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 3rem 5rem;text-align:center;position:relative;overflow:hidden;}
-.hero-glow{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:900px;height:500px;background:radial-gradient(ellipse at 50% 0%,rgba(12,242,180,.13) 0%,transparent 70%);pointer-events:none;}
-.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 30%,transparent 70%);pointer-events:none;}
-.pill{display:inline-flex;align-items:center;gap:.45rem;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);border:1px solid rgba(12,242,180,.25);background:var(--mint-dim);padding:.3rem .85rem;border-radius:100px;margin-bottom:1.75rem;animation:fadeUp .5s ease both;}
-.pill-dot{width:5px;height:5px;border-radius:50%;background:var(--mint);animation:blink 2s ease infinite;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(2.8rem,6vw,5rem);font-weight:800;letter-spacing:-.04em;line-height:1.01;margin-bottom:1.5rem;animation:fadeUp .5s .08s ease both;}
-h1 .accent{background:linear-gradient(135deg,var(--mint) 0%,#3BFFD4 50%,#0CF2B4 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-sub{font-size:1.05rem;font-weight:400;color:var(--text-2);max-width:520px;margin:0 auto 2.5rem;line-height:1.75;animation:fadeUp .5s .15s ease both;}
-.hero-ctas{display:flex;gap:.85rem;align-items:center;justify-content:center;margin-bottom:4rem;animation:fadeUp .5s .22s ease both;}
-.btn-p{background:var(--mint);color:#04120D;font-family:'Instrument Sans',sans-serif;font-weight:600;font-size:.88rem;padding:.7rem 1.75rem;border-radius:8px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:box-shadow .2s,opacity .15s;display:inline-flex;align-items:center;gap:.4rem;}
-.btn-p:hover{box-shadow:0 6px 30px var(--mint-glow);opacity:.92;}
-.btn-g{color:var(--text-2);font-size:.88rem;text-decoration:none;border:1px solid var(--line-2);padding:.7rem 1.5rem;border-radius:8px;transition:border-color .15s,color .15s;display:inline-flex;align-items:center;gap:.4rem;}
-.btn-g:hover{border-color:var(--text-2);color:var(--text);}
-
-/* UPLOAD WIDGET */
-.upload-widget{width:100%;max-width:700px;margin:0 auto;background:var(--bg-1);border:1px solid var(--line-2);border-radius:16px;overflow:hidden;animation:fadeUp .5s .3s ease both;}
-.upload-bar{display:flex;align-items:center;gap:.6rem;padding:.7rem 1.1rem;background:var(--bg-2);border-bottom:1px solid var(--line);}
-.dot-row{display:flex;gap:5px;}
-.dot-r{width:10px;height:10px;border-radius:50%;background:#F25C5C;}
-.dot-y{width:10px;height:10px;border-radius:50%;background:#F2A93B;}
-.dot-g{width:10px;height:10px;border-radius:50%;background:#3EC869;}
-.bar-title{font-size:.72rem;color:var(--text-3);margin-left:.4rem;letter-spacing:.03em;}
-.upload-body{padding:1.5rem;}
-.dropzone{border:1.5px dashed var(--line-2);border-radius:12px;padding:2.5rem 1.5rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;}
-.dropzone:hover,.dropzone.dragover{border-color:var(--mint);background:var(--mint-dim);}
-.drop-icon{font-size:2rem;margin-bottom:.75rem;display:block;}
-.drop-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:.95rem;margin-bottom:.3rem;}
-.drop-sub{font-size:.78rem;color:var(--text-2);}
-.drop-sub span{color:var(--mint);font-weight:500;cursor:pointer;}
-#file-input{position:absolute;inset:0;opacity:0;cursor:pointer;}
-.processing{display:none;padding:1rem 0;}
-.proc-file{display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;padding:.75rem 1rem;background:var(--bg-2);border-radius:8px;border:1px solid var(--line);}
-.proc-icon{font-size:1.25rem;}
-.proc-name{font-size:.82rem;font-weight:500;}
-.proc-size{font-size:.72rem;color:var(--text-3);}
-.proc-steps{display:flex;flex-direction:column;gap:.6rem;}
-.proc-step{display:flex;align-items:center;gap:.75rem;font-size:.8rem;color:var(--text-2);}
-.step-ind{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-size:.6rem;flex-shrink:0;transition:all .3s;}
-.step-ind.done{background:rgba(12,242,180,.15);border-color:var(--mint);color:var(--mint);}
-.step-ind.running{border-color:var(--mint);border-top-color:transparent;animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.proc-bar{height:3px;background:var(--line);border-radius:2px;margin-top:1rem;overflow:hidden;}
-.proc-fill{height:100%;background:linear-gradient(90deg,var(--mint),#3BFFD4);border-radius:2px;width:0%;transition:width .4s ease;}
-.results-pane{display:none;}
-.result-cols{display:flex;gap:1rem;}
-.result-col{flex:1;}
-.result-header{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem;}
-.result-header.bad{color:var(--red);}
-.result-header.good{color:var(--mint);}
-.result-item{display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--text-2);padding:.35rem .5rem;border-radius:5px;}
-.result-divider{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 .5rem;}
-.div-arr{color:var(--mint);font-size:1.1rem;animation:bounce .8s ease infinite;}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
-.result-score{margin-top:1rem;display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;background:rgba(12,242,180,.07);border:1px solid rgba(12,242,180,.2);border-radius:8px;}
-.score-lbl{font-size:.75rem;color:var(--text-2);}
-.score-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.3rem;color:var(--mint);}
-.score-dl{display:inline-flex;align-items:center;gap:.4rem;background:var(--mint);color:#04120D;font-size:.75rem;font-weight:600;padding:.35rem .85rem;border-radius:5px;cursor:pointer;border:none;transition:opacity .15s;}
-.score-dl:hover{opacity:.85;}
-.try-again{width:100%;padding:.65rem;margin-top:.75rem;background:transparent;border:1px solid var(--line-2);border-radius:7px;color:var(--text-2);font-family:'Instrument Sans',sans-serif;font-size:.8rem;cursor:pointer;transition:border-color .15s,color .15s;display:none;}
-.try-again:hover{border-color:var(--text-2);color:var(--text);}
-
-/* STRIP */
-.strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:1.5rem 3rem;display:flex;align-items:center;justify-content:center;gap:3.5rem;flex-wrap:wrap;}
-.strip-label{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);white-space:nowrap;}
-.strip-badges{display:flex;gap:1.25rem;flex-wrap:wrap;justify-content:center;}
-.strip-badge{font-size:.72rem;font-weight:500;letter-spacing:.04em;color:var(--text-2);padding:.28rem .8rem;border:1px solid var(--line-2);border-radius:5px;background:var(--bg-1);}
-
-/* SHARED SECTION */
-section{padding:6rem 3rem;}
-.sec-eye{font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--mint);margin-bottom:.75rem;}
-h2{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.9rem,3.2vw,2.6rem);font-weight:700;letter-spacing:-.03em;line-height:1.08;margin-bottom:.85rem;}
-.sec-sub{color:var(--text-2);font-size:.95rem;max-width:480px;line-height:1.75;font-weight:400;}
-.centered{text-align:center;}.centered .sec-sub{margin:0 auto;}
-
-/* HOW */
-.how{background:var(--bg-1);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
-.how-layout{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start;max-width:1100px;margin:0 auto;}
-.steps-list{margin-top:2.5rem;}
-.step-row{display:grid;grid-template-columns:44px 1fr;gap:1.1rem;padding:1.5rem 0;border-bottom:1px solid var(--line);}
-.step-row:last-child{border-bottom:none;}
-.step-n{width:44px;height:44px;border-radius:10px;background:var(--bg-3);border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.78rem;color:var(--mint);flex-shrink:0;}
-.step-t{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:.95rem;margin-bottom:.3rem;}
-.step-d{font-size:.82rem;color:var(--text-2);line-height:1.65;}
-.pipeline-card{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:2.5rem;}
-.phase-row{padding:1.1rem 1.4rem;border-bottom:1px solid var(--line);}
-.phase-row:last-child{border-bottom:none;}
-.ph-head{display:flex;align-items:center;gap:.6rem;margin-bottom:.55rem;}
-.ph-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.ph-dot.a{background:var(--amber)}.ph-dot.r{background:var(--mint)}.ph-dot.o{background:var(--blue);}
-.ph-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:.8rem;}
-.ph-tags{display:flex;flex-wrap:wrap;gap:.35rem;}
-.ph-tag{font-size:.67rem;color:var(--text-3);background:var(--bg-3);border:1px solid var(--line);padding:.15rem .5rem;border-radius:4px;}
-
-/* FEATURES */
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:3.5rem;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
-.feat-card{background:var(--bg-1);padding:1.75rem;transition:background .2s;position:relative;}
-.feat-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(12,242,180,.06) 0%,transparent 60%);opacity:0;transition:opacity .3s;pointer-events:none;}
-.feat-card:hover{background:var(--bg-2);}
-.feat-card:hover::after{opacity:1;}
-.feat-ico{width:38px;height:38px;border-radius:9px;background:var(--bg-3);border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-size:1rem;margin-bottom:1rem;}
-.feat-t{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:.9rem;margin-bottom:.4rem;}
-.feat-d{font-size:.8rem;color:var(--text-2);line-height:1.65;}
-
-/* STANDARDS */
-.standards{background:var(--bg-1);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
-.std-layout{display:grid;grid-template-columns:1fr 1.2fr;gap:5rem;align-items:center;max-width:1100px;margin:0 auto;}
-.std-list{display:flex;flex-direction:column;gap:.75rem;margin-top:2rem;}
-.std-item{display:flex;align-items:center;gap:1rem;padding:.9rem 1.1rem;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;transition:border-color .15s;}
-.std-item:hover{border-color:var(--line-2);}
-.std-logo{width:36px;height:36px;border-radius:7px;background:var(--bg-3);border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:.58rem;color:var(--mint);letter-spacing:.02em;text-align:center;line-height:1.3;flex-shrink:0;}
-.std-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:.82rem;}
-.std-desc{font-size:.72rem;color:var(--text-2);margin-top:.1rem;}
-.std-chip{margin-left:auto;background:rgba(12,242,180,.1);border:1px solid rgba(12,242,180,.2);color:var(--mint);font-size:.63rem;font-weight:700;letter-spacing:.06em;padding:.18rem .55rem;border-radius:100px;flex-shrink:0;}
-.score-visual{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:1.75rem;}
-.sv-head{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:1rem;margin-bottom:1.25rem;border-bottom:1px solid var(--line);}
-.sv-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:.85rem;}
-.sv-file{font-size:.68rem;color:var(--text-3);}
-.sv-row{display:flex;align-items:center;gap:.85rem;margin-bottom:.85rem;}
-.sv-lbl{font-size:.75rem;color:var(--text-2);width:125px;flex-shrink:0;}
-.sv-track{flex:1;height:5px;background:var(--line);border-radius:3px;overflow:hidden;}
-.sv-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--mint),#3BFFD4);transform:scaleX(0);transform-origin:left;transition:transform 1.2s cubic-bezier(.16,1,.3,1);}
-.sv-pct{font-size:.72rem;font-weight:600;color:var(--mint);width:34px;text-align:right;}
-.sv-total{display:flex;align-items:center;justify-content:space-between;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--line);}
-.sv-total-lbl{font-size:.78rem;font-weight:500;}
-.sv-total-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.6rem;color:var(--mint);}
-
-/* PRICING */
-.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin:3rem auto 0;max-width:950px;}
-.price-card{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:1.85rem;position:relative;transition:border-color .2s;}
-.price-card.featured{border-color:rgba(12,242,180,.35);background:linear-gradient(160deg,rgba(12,242,180,.05) 0%,var(--bg-1) 50%);}
-.feat-chip{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--mint);color:#04120D;font-size:.62rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;padding:.22rem .7rem;border-radius:100px;white-space:nowrap;}
-.pr-plan{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin-bottom:.85rem;}
-.pr-amt{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:2.4rem;letter-spacing:-.04em;line-height:1;margin-bottom:.2rem;}
-.pr-amt sub{font-size:.95rem;font-weight:400;color:var(--text-2);letter-spacing:0;}
-.pr-desc{font-size:.78rem;color:var(--text-2);margin-bottom:1.4rem;padding-bottom:1.4rem;border-bottom:1px solid var(--line);line-height:1.6;}
-.pr-feats{list-style:none;display:flex;flex-direction:column;gap:.55rem;margin-bottom:1.75rem;}
-.pr-feats li{display:flex;align-items:center;gap:.55rem;font-size:.8rem;color:var(--text-2);}
-.pr-feats li::before{content:'✓';color:var(--mint);font-size:.7rem;font-weight:700;flex-shrink:0;}
-.pr-btn{width:100%;padding:.7rem;border-radius:8px;font-family:'Instrument Sans',sans-serif;font-size:.83rem;font-weight:600;cursor:pointer;border:1px solid var(--line-2);background:transparent;color:var(--text);transition:all .15s;letter-spacing:.01em;}
-.pr-btn:hover{border-color:var(--text-2);color:var(--text);}
-.pr-btn.p{background:var(--mint);color:#04120D;border-color:var(--mint);}
-.pr-btn.p:hover{box-shadow:0 4px 20px var(--mint-glow);opacity:.9;color:#04120D;}
-
-/* FAQ */
-.faq-wrap{max-width:680px;margin:3rem auto 0;display:flex;flex-direction:column;gap:.5rem;}
-.faq-item{border:1px solid var(--line);border-radius:10px;overflow:hidden;transition:border-color .2s;}
-.faq-item.open{border-color:var(--line-2);}
-.faq-q{width:100%;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.35rem;background:var(--bg-1);border:none;cursor:pointer;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:.9rem;color:var(--text);text-align:left;gap:1rem;transition:background .15s;}
-.faq-q:hover{background:var(--bg-2);}
-.faq-icon{width:22px;height:22px;border-radius:6px;background:var(--bg-3);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--text-3);flex-shrink:0;transition:transform .25s,background .15s,color .15s;}
-.faq-item.open .faq-icon{transform:rotate(45deg);background:var(--mint-dim);color:var(--mint);border-color:rgba(12,242,180,.25);}
-.faq-a{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.16,1,.3,1);}
-.faq-a-inner{padding:0 1.35rem 1.1rem;font-size:.83rem;color:var(--text-2);line-height:1.75;border-top:1px solid var(--line);}
-.faq-a-inner a{color:var(--mint);text-decoration:none;}
-.faq-a-inner a:hover{text-decoration:underline;}
-
-/* WAITLIST */
-.waitlist{background:var(--bg-1);border-top:1px solid var(--line);text-align:center;padding:5rem 3rem;}
-.waitlist h2{max-width:480px;margin:0 auto .85rem;}
-.waitlist .sec-sub{margin:0 auto 2.25rem;}
-.wl-form{display:flex;gap:.75rem;max-width:480px;margin:0 auto;align-items:stretch;}
-.wl-input{flex:1;background:var(--bg-2);border:1px solid var(--line-2);border-radius:9px;padding:.75rem 1.1rem;font-family:'Instrument Sans',sans-serif;font-size:.88rem;color:var(--text);outline:none;transition:border-color .15s;}
-.wl-input::placeholder{color:var(--text-3);}
-.wl-input:focus{border-color:rgba(12,242,180,.4);}
-.wl-btn{background:var(--mint);color:#04120D;font-family:'Instrument Sans',sans-serif;font-weight:600;font-size:.88rem;padding:.75rem 1.5rem;border-radius:9px;border:none;cursor:pointer;white-space:nowrap;transition:box-shadow .2s,opacity .15s;}
-.wl-btn:hover{box-shadow:0 4px 22px var(--mint-glow);opacity:.9;}
-.wl-confirm{display:none;flex-direction:column;align-items:center;gap:.5rem;max-width:480px;margin:0 auto;padding:1.25rem;background:rgba(12,242,180,.07);border:1px solid rgba(12,242,180,.2);border-radius:10px;font-size:.85rem;color:var(--mint);}
-.wl-avatars{display:flex;align-items:center;gap:.6rem;justify-content:center;margin-top:1.1rem;}
-.wl-ava-stack{display:flex;}
-.wl-ava{width:28px;height:28px;border-radius:50%;border:2px solid var(--bg-1);display:flex;align-items:center;justify-content:center;font-size:.75rem;margin-left:-8px;background:var(--bg-3);}
-.wl-ava:first-child{margin-left:0;}
-.wl-count{font-size:.75rem;color:var(--text-2);}
-.wl-fine{font-size:.72rem;color:var(--text-3);margin-top:.6rem;}
-
-/* DEADLINE BANNER */
-.deadline-banner{background:rgba(242,169,59,.07);border-top:1px solid rgba(242,169,59,.2);border-bottom:1px solid rgba(242,169,59,.2);padding:1rem 3rem;}
-.deadline-inner{display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto;gap:1.5rem;flex-wrap:wrap;}
-.deadline-left{display:flex;align-items:center;gap:1rem;}
-.deadline-icon{font-size:1.25rem;flex-shrink:0;}
-.deadline-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:.88rem;margin-bottom:.15rem;}
-.deadline-sub{font-size:.75rem;color:var(--text-2);}
-.deadline-sub strong{color:var(--amber);}
-.deadline-cta{font-size:.78rem;font-weight:600;color:var(--amber);text-decoration:none;border:1px solid rgba(242,169,59,.3);padding:.4rem 1rem;border-radius:6px;white-space:nowrap;transition:background .15s;}
-.deadline-cta:hover{background:rgba(242,169,59,.1);}
-
-/* RISK + DIFFERENTIATOR */
-.risk-section{background:var(--bg-1);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6rem 3rem;}
-.risk-layout{display:grid;grid-template-columns:1fr 1.1fr;gap:5rem;align-items:start;max-width:1100px;margin:0 auto;}
-.risk-stats{display:flex;gap:2rem;margin-top:2.5rem;}
-.risk-stat{flex:1;padding:1.25rem;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;}
-.risk-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:2.2rem;letter-spacing:-.04em;line-height:1;margin-bottom:.35rem;color:var(--text);}
-.risk-num span{color:var(--mint);}
-.risk-lbl{font-size:.75rem;color:var(--text-2);line-height:1.5;}
-.diff-card{background:var(--bg-2);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
-.diff-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.95rem;padding:1.25rem 1.4rem .5rem;}
-.diff-body{font-size:.8rem;color:var(--text-2);line-height:1.65;padding:0 1.4rem 1.25rem;}
-.diff-divider{height:1px;background:var(--line);margin:0;}
-.diff-rows{padding:.25rem 0;}
-.diff-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);}
-.diff-row:first-child{background:none;gap:0;}
-.diff-col{padding:.7rem 1.1rem;font-size:.78rem;color:var(--text-2);background:var(--bg-2);display:flex;align-items:center;gap:.5rem;}
-.diff-col-h{padding:.6rem 1.1rem;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-3);background:var(--bg-3);}
-.diff-col-h:last-child{color:var(--mint);}
-.diff-x{color:var(--red);font-size:.65rem;flex-shrink:0;}
-.diff-c{color:var(--mint);font-size:.65rem;flex-shrink:0;}
-
-/* TESTIMONIALS */
-.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:1100px;margin:3rem auto 0;}
-.testi-card{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:1.6rem;display:flex;flex-direction:column;gap:1.1rem;transition:border-color .2s;}
-.testi-card:hover{border-color:rgba(12,242,180,.2);}
-.testi-stars{color:var(--mint);font-size:.8rem;letter-spacing:.05em;}
-.testi-quote{font-size:.85rem;color:var(--text-2);line-height:1.7;flex:1;}
-.testi-person{display:flex;align-items:center;gap:.85rem;padding-top:.75rem;border-top:1px solid var(--line);}
-.testi-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,rgba(12,242,180,.2),rgba(12,242,180,.05));border:1px solid rgba(12,242,180,.25);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:var(--mint);letter-spacing:.04em;flex-shrink:0;}
-.testi-name{font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:.15rem;}
-.testi-role{font-size:.72rem;color:var(--text-3);}
-@media(max-width:900px){.testi-grid{grid-template-columns:1fr 1fr;}}
-@media(max-width:600px){.testi-grid{grid-template-columns:1fr;}}
-
-/* PAGINATION */
-.pg-btn{background:var(--bg-1);border:1px solid var(--line);border-radius:7px;color:var(--text-2);font-family:'Instrument Sans',sans-serif;font-size:.8rem;padding:.45rem .85rem;cursor:pointer;transition:border-color .15s,color .15s;}
-.pg-btn:hover{border-color:var(--line-2);color:var(--text);}
-.pg-btn.active{background:var(--mint-dim);border-color:rgba(12,242,180,.35);color:var(--mint);font-weight:600;}
-.pg-btn:disabled{opacity:.3;cursor:not-allowed;}
-.filter-btn{font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:.3rem .85rem;border-radius:100px;border:1px solid var(--line-2);background:transparent;color:var(--text-3);cursor:pointer;transition:all .15s;font-family:'Instrument Sans',sans-serif;}
-.filter-btn:hover{color:var(--text-2);border-color:var(--text-3);}
-.filter-btn.active{background:var(--mint-dim);border-color:rgba(12,242,180,.3);color:var(--mint);}
-
-/* CONTACT CTA SECTION */
-.contact-cta{padding:6rem 3rem;background:var(--bg);position:relative;overflow:hidden;}
-.contact-cta::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:800px;height:300px;background:radial-gradient(ellipse at 50% 0%,rgba(12,242,180,.08) 0%,transparent 70%);pointer-events:none;}
-.contact-cta-inner{max-width:860px;margin:0 auto;background:var(--bg-1);border:1px solid var(--line-2);border-radius:20px;padding:4rem;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;}
-.contact-cta-inner::before{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(135deg,rgba(12,242,180,.04) 0%,transparent 60%);pointer-events:none;}
-.contact-cta-left h2{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.6rem,2.8vw,2.2rem);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:.75rem;}
-.contact-cta-left p{font-size:.88rem;color:var(--text-2);line-height:1.75;margin-bottom:1.75rem;}
-.contact-cta-bullets{display:flex;flex-direction:column;gap:.6rem;}
-.contact-cta-bullet{display:flex;align-items:center;gap:.65rem;font-size:.82rem;color:var(--text-2);}
-.contact-cta-bullet::before{content:'✓';color:var(--mint);font-size:.7rem;font-weight:700;flex-shrink:0;}
-.contact-cta-right{display:flex;flex-direction:column;gap:.75rem;}
-.contact-inline-input{background:var(--bg-2);border:1px solid var(--line-2);border-radius:9px;padding:.75rem 1rem;font-family:'Instrument Sans',sans-serif;font-size:.85rem;color:var(--text);outline:none;transition:border-color .15s;width:100%;}
-.contact-inline-input::placeholder{color:var(--text-3);}
-.contact-inline-input:focus{border-color:rgba(12,242,180,.4);}
-.contact-inline-textarea{background:var(--bg-2);border:1px solid var(--line-2);border-radius:9px;padding:.75rem 1rem;font-family:'Instrument Sans',sans-serif;font-size:.85rem;color:var(--text);outline:none;transition:border-color .15s;width:100%;resize:vertical;min-height:90px;}
-.contact-inline-textarea::placeholder{color:var(--text-3);}
-.contact-inline-textarea:focus{border-color:rgba(12,242,180,.4);}
-.contact-inline-submit{width:100%;padding:.8rem;background:var(--mint);color:#04120D;font-family:'Instrument Sans',sans-serif;font-weight:700;font-size:.9rem;border:none;border-radius:9px;cursor:pointer;transition:opacity .15s,box-shadow .2s;}
-.contact-inline-submit:hover{opacity:.9;box-shadow:0 6px 28px var(--mint-glow);}
-.contact-inline-submit:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
-.contact-success{display:none;text-align:center;padding:2rem 1rem;}
-.contact-success-icon{font-size:2rem;margin-bottom:.75rem;}
-.contact-success-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:.4rem;}
-.contact-success-sub{font-size:.83rem;color:var(--text-2);line-height:1.65;}
-@media(max-width:760px){.contact-cta-inner{grid-template-columns:1fr;gap:2rem;padding:2rem;}}
-
-/* CONTACT MODAL */
-.contact-modal{display:none;position:fixed;inset:0;z-index:600;background:rgba(7,9,13,.88);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:2rem;}
-.contact-modal.open{display:flex;}
-.contact-modal-inner{background:var(--bg-1);border:1px solid var(--line-2);border-radius:18px;max-width:520px;width:100%;padding:2.5rem;position:relative;box-shadow:0 40px 80px rgba(0,0,0,.5);}
-.contact-modal-close{position:absolute;top:1rem;right:1rem;width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:var(--bg-2);color:var(--text-3);font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .15s,border-color .15s;}
-.contact-modal-close:hover{color:var(--text);border-color:var(--line-2);}
-.contact-modal-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.35rem;letter-spacing:-.03em;margin-bottom:.35rem;}
-.contact-modal-sub{font-size:.82rem;color:var(--text-2);margin-bottom:1.75rem;line-height:1.6;}
-.contact-modal-fields{display:flex;flex-direction:column;gap:.65rem;}
-.contact-modal-row{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;}
-
-/* FOOTER */
-footer{padding:2.25rem 3rem;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
-.ft-links{display:flex;gap:1.75rem;list-style:none;}
-.ft-links a{font-size:.78rem;color:var(--text-3);text-decoration:none;transition:color .15s;}
-.ft-links a:hover{color:var(--text-2);}
-.ft-copy{font-size:.73rem;color:var(--text-3);}
-
-/* ROUTER */
-.page{display:none;}.page.active{display:block;}
-nav ul a.nav-active{color:var(--text);}
-
-/* HOW-IT-WORKS PAGE */
-.hiw-hero{padding:8rem 3rem 4rem;text-align:center;border-bottom:1px solid var(--line);background:var(--bg-1);}
-.hiw-hero h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:-.04em;margin-bottom:.85rem;}
-.hiw-hero p{color:var(--text-2);font-size:.97rem;max-width:520px;margin:0 auto;line-height:1.75;}
-.hiw-phases{max-width:1000px;margin:0 auto;padding:5rem 3rem;display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
-.hiw-phase{background:var(--bg-1);padding:2.5rem;display:grid;grid-template-columns:200px 1fr;gap:3rem;align-items:start;}
-.hiw-phase-label{display:flex;flex-direction:column;gap:.5rem;padding-top:.15rem;}
-.hiw-phase-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:3rem;letter-spacing:-.06em;line-height:1;color:var(--bg-3);}
-.hiw-phase-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;}
-.hiw-phase-tag{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .6rem;border-radius:100px;border:1px solid;width:fit-content;margin-top:.2rem;}
-.hiw-phase-tag.a{color:var(--amber);border-color:rgba(242,169,59,.3);background:rgba(242,169,59,.07);}
-.hiw-phase-tag.r{color:var(--mint);border-color:rgba(12,242,180,.3);background:var(--mint-dim);}
-.hiw-phase-tag.o{color:var(--blue);border-color:rgba(59,142,248,.3);background:rgba(59,142,248,.07);}
-.hiw-phase-content h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.2rem;margin-bottom:.5rem;}
-.hiw-phase-content p{font-size:.85rem;color:var(--text-2);line-height:1.75;margin-bottom:1.25rem;}
-.hiw-checks{display:flex;flex-direction:column;gap:.5rem;}
-.hiw-check{display:flex;align-items:flex-start;gap:.75rem;font-size:.82rem;color:var(--text-2);line-height:1.5;}
-.hiw-check-dot{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:.55rem;flex-shrink:0;margin-top:.1rem;}
-.hiw-check-dot.a{background:rgba(242,169,59,.12);color:var(--amber);}
-.hiw-check-dot.r{background:rgba(12,242,180,.1);color:var(--mint);}
-.hiw-check-dot.o{background:rgba(59,142,248,.1);color:var(--blue);}
-.hiw-check strong{color:var(--text);font-weight:500;}
-.hiw-cta-band{text-align:center;padding:4rem 3rem;border-top:1px solid var(--line);}
-.hiw-cta-band h2{font-family:'Bricolage Grotesque',sans-serif;font-size:1.8rem;font-weight:700;letter-spacing:-.03em;margin-bottom:.6rem;}
-.hiw-cta-band p{color:var(--text-2);font-size:.88rem;margin-bottom:1.75rem;}
-
-/* BLOG PAGE */
-.blog-hero{padding:8rem 3rem 3.5rem;border-bottom:1px solid var(--line);background:var(--bg-1);}
-.blog-hero h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(2rem,4vw,3rem);font-weight:800;letter-spacing:-.04em;margin-bottom:.6rem;}
-.blog-hero p{color:var(--text-2);font-size:.95rem;max-width:480px;line-height:1.7;}
-.blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1100px;margin:0 auto;padding:4rem 3rem;}
-.blog-card{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:border-color .2s,transform .2s;}
-.blog-card:hover{border-color:var(--line-2);transform:translateY(-2px);}
-.blog-thumb{height:150px;display:block;overflow:hidden;border-bottom:1px solid var(--line);position:relative;}.blog-thumb svg{width:100%;height:100%;}
-.blog-body{padding:1.4rem;flex:1;display:flex;flex-direction:column;}
-.blog-tag{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);margin-bottom:.6rem;}
-.blog-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.95rem;line-height:1.35;margin-bottom:.6rem;}
-.blog-excerpt{font-size:.8rem;color:var(--text-2);line-height:1.65;flex:1;}
-.blog-meta{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:.85rem;border-top:1px solid var(--line);}
-.blog-date{font-size:.7rem;color:var(--text-3);}
-.blog-read{font-size:.7rem;color:var(--text-3);}
-
-/* BLOG POST MODAL */
-.blog-post{display:none;position:fixed;inset:0;z-index:500;background:rgba(7,9,13,.92);backdrop-filter:blur(12px);overflow-y:auto;padding:2rem;}
-.blog-post.open{display:flex;justify-content:center;}
-.blog-post-inner{background:var(--bg-1);border:1px solid var(--line);border-radius:16px;max-width:720px;width:100%;padding:3rem;margin:auto;position:relative;}
-.blog-post-back{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-3);cursor:pointer;margin-bottom:2rem;transition:color .15s;background:none;border:none;}
-.blog-post-back:hover{color:var(--text-2);}
-.blog-post-tag{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);margin-bottom:.75rem;}
-.blog-post-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(1.6rem,3vw,2.2rem);letter-spacing:-.03em;line-height:1.1;margin-bottom:1rem;}
-.blog-post-meta{font-size:.75rem;color:var(--text-3);margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--line);}
-.blog-post-body{font-size:.9rem;color:var(--text-2);line-height:1.85;}
-.blog-post-body h2{font-family:'Bricolage Grotesque',sans-serif;color:var(--text);font-size:1.15rem;font-weight:700;margin:2rem 0 .65rem;letter-spacing:-.02em;}
-.blog-post-body p{margin-bottom:1.1rem;}
-.blog-post-body ul{padding-left:1.25rem;margin-bottom:1.1rem;display:flex;flex-direction:column;gap:.4rem;}
-.blog-post-body strong{color:var(--text);font-weight:600;}
-.blog-post-body .callout{background:var(--mint-dim);border:1px solid rgba(12,242,180,.2);border-radius:9px;padding:1rem 1.25rem;margin:1.5rem 0;font-size:.85rem;color:var(--text);}
-
-/* AUDIT PAGE */
-.audit-hero{padding:8rem 3rem 3rem;text-align:center;border-bottom:1px solid var(--line);background:var(--bg-1);position:relative;overflow:hidden;}
-.audit-hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse at 50% 0%,rgba(12,242,180,.1) 0%,transparent 70%);pointer-events:none;}
-.audit-hero h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:-.04em;margin-bottom:.75rem;}
-.audit-hero p{color:var(--text-2);font-size:.97rem;max-width:480px;margin:0 auto 2rem;line-height:1.75;}
-.audit-wrap{max-width:780px;margin:0 auto;padding:4rem 3rem;}
-.audit-box{background:var(--bg-1);border:1px solid var(--line-2);border-radius:16px;overflow:hidden;}
-.audit-bar{display:flex;align-items:center;gap:.6rem;padding:.7rem 1.1rem;background:var(--bg-2);border-bottom:1px solid var(--line);}
-.audit-drop{border:1.5px dashed var(--line-2);border-radius:12px;padding:2.75rem 1.5rem;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;margin:1.5rem;}
-.audit-drop:hover,.audit-drop.dragover{border-color:var(--mint);background:var(--mint-dim);}
-.audit-form{padding:0 1.5rem 1.5rem;}
-.audit-fields{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem;}
-.audit-input{background:var(--bg-2);border:1px solid var(--line-2);border-radius:8px;padding:.7rem 1rem;font-family:'Instrument Sans',sans-serif;font-size:.85rem;color:var(--text);outline:none;transition:border-color .15s;width:100%;}
-.audit-input::placeholder{color:var(--text-3);}
-.audit-input:focus{border-color:rgba(12,242,180,.4);}
-.audit-submit{width:100%;padding:.8rem;background:var(--mint);color:#04120D;font-family:'Instrument Sans',sans-serif;font-weight:700;font-size:.9rem;border:none;border-radius:9px;cursor:pointer;transition:opacity .15s,box-shadow .2s;margin-top:.25rem;}
-.audit-submit:hover{opacity:.9;box-shadow:0 6px 28px var(--mint-glow);}
-.audit-submit:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
-.audit-processing{display:none;padding:2rem 1.5rem;}
-.audit-result{display:none;padding:1.5rem;}
-.audit-score-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;background:var(--bg-2);border-bottom:1px solid var(--line);}
-.audit-score-big{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:2.8rem;letter-spacing:-.05em;line-height:1;}
-.audit-score-big.fail{color:var(--red);}
-.audit-score-big.warn{color:var(--amber);}
-.audit-score-big.pass{color:var(--mint);}
-.audit-score-lbl{font-size:.72rem;color:var(--text-2);margin-top:.2rem;}
-.audit-issues-list{padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:.65rem;}
-.audit-issue{display:flex;gap:.85rem;padding:1rem;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;}
-.audit-issue-sev{width:8px;border-radius:4px;flex-shrink:0;align-self:stretch;}
-.audit-issue-sev.high{background:var(--red);}
-.audit-issue-sev.med{background:var(--amber);}
-.audit-issue-sev.low{background:var(--blue);}
-.audit-issue-body{}
-.audit-issue-title{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:.85rem;margin-bottom:.3rem;}
-.audit-issue-desc{font-size:.78rem;color:var(--text-2);line-height:1.6;}
-.audit-issue-badge{display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.15rem .5rem;border-radius:4px;margin-top:.5rem;}
-.audit-issue-badge.high{background:rgba(242,92,92,.12);color:var(--red);border:1px solid rgba(242,92,92,.2);}
-.audit-issue-badge.med{background:rgba(242,169,59,.1);color:var(--amber);border:1px solid rgba(242,169,59,.2);}
-.audit-issue-badge.low{background:rgba(59,142,248,.1);color:var(--blue);border:1px solid rgba(59,142,248,.2);}
-.audit-cta-strip{display:flex;gap:.75rem;align-items:center;justify-content:center;padding:1.25rem 1.5rem;border-top:1px solid var(--line);background:var(--bg-2);}
-.audit-reset{font-size:.78rem;color:var(--text-3);background:none;border:1px solid var(--line-2);border-radius:7px;padding:.5rem 1rem;cursor:pointer;font-family:'Instrument Sans',sans-serif;transition:color .15s,border-color .15s;}
-.audit-reset:hover{color:var(--text-2);border-color:var(--text-3);}
-@media(max-width:700px){.hiw-phase{grid-template-columns:1fr;}.audit-fields{grid-template-columns:1fr;}.blog-grid{grid-template-columns:1fr;}}
-
-/* REVEAL */
-.reveal{opacity:0;transform:translateY(20px);transition:opacity .65s ease,transform .65s ease;}
-.reveal.vis{opacity:1;transform:translateY(0);}
-.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RemeDocs — Automated PDF Accessibility Compliance</title>
+  <meta name="description" content="Scan your PDFs for ADA and WCAG accessibility compliance in seconds. Get detailed remediation reports with actionable fixes. Start free." />
+  <meta name="keywords" content="PDF accessibility, ADA compliance, WCAG, Section 508, remediation, accessibility checker" />
+  <meta property="og:title" content="RemeDocs — Automated PDF Accessibility Compliance" />
+  <meta property="og:description" content="Scan your PDFs for ADA and WCAG accessibility compliance in seconds. Get detailed remediation reports with actionable fixes." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://remedocs.com" />
+  <link rel="canonical" href="https://remedocs.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<nav>
-  <a href="#" class="logo" onclick="navigate('home');return false;"><span class="logo-dot"></span>RemeDocs</a>
-  <ul>
-    <li><a href="#" onclick="navigate('how');return false;" data-nav="how">How it works</a></li>
-    <li><a href="#" onclick="navigate('blog');return false;" data-nav="blog">Blog</a></li>
-    <li><a href="#faq" onclick="if(currentPage!=='home'){navigate('home');setTimeout(()=>document.getElementById('faq')?.scrollIntoView({behavior:'smooth'}),350);}return false;" data-nav="faq">FAQ</a></li>
-    <li><a href="#" onclick="navigate('audit');return false;" class="nav-btn-ghost" data-nav="audit">Free PDF audit</a></li>
-    <li><a href="#" onclick="openContact();return false;" class="nav-btn">Get in touch</a></li>
-  </ul>
-</nav>
-
-<!-- PAGE: HOME -->
-<div id="page-home" class="page active">
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-glow"></div>
-  <div class="hero-grid"></div>
-  <div class="pill"><span class="pill-dot"></span>ADA Title II deadline: April 2026</div>
-  <h1>Your PDFs, actually<br/><span class="accent">remediated.</span></h1>
-  <p class="hero-sub">RemeDocs fixes the actual PDF — not just a wrapper around it. Upload any document and get back a fully compliant file, tagged and audit-ready for WCAG 2.1 AA, PDF/UA, and Section 508.</p>
-  <div class="hero-ctas">
-    <a href="#" class="btn-p">Get a free PDF audit ↗</a>
-    <a href="#how" class="btn-g">See how it works →</a>
-  </div>
-  <div class="upload-widget">
-    <div class="upload-bar">
-      <div class="dot-row"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div></div>
-      <span class="bar-title">remedocs — live demo</span>
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <div class="container nav-inner">
+      <a href="/" class="nav-logo">RemeDocs</a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="https://app.remedocs.com/auth/login" class="btn btn-outline btn-sm">Sign In</a>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
     </div>
-    <div class="upload-body">
-      <div class="dropzone" id="dropzone">
-        <input type="file" id="file-input" accept=".pdf"/>
-        <span class="drop-icon">📄</span>
-        <div class="drop-title">Drop a PDF to try RemeDocs</div>
-        <div class="drop-sub">or <span onclick="document.getElementById('file-input').click()">browse files</span> — max 10 MB · demo mode</div>
-      </div>
-      <div class="processing" id="processing">
-        <div class="proc-file">
-          <span class="proc-icon">📄</span>
-          <div><div class="proc-name" id="proc-fname">document.pdf</div><div class="proc-size" id="proc-fsize">Analyzing…</div></div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">PDF Accessibility Made Simple</div>
+        <h1>Make Your PDFs<br /><span class="text-gradient">ADA Compliant</span></h1>
+        <p class="hero-subtitle">
+          Upload a PDF, get a detailed accessibility audit in seconds.
+          Identify WCAG violations, missing alt text, reading order issues,
+          and get actionable remediation guidance — all automated.
+        </p>
+        <div class="hero-actions">
+          <a href="https://app.remedocs.com/auth/register?plan=free" class="btn btn-primary btn-lg">
+            Start Free
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#pricing" class="btn btn-ghost btn-lg">View Pricing</a>
         </div>
-        <div class="proc-steps">
-          <div class="proc-step"><div class="step-ind" id="si0"></div><span>Parsing document structure</span></div>
-          <div class="proc-step"><div class="step-ind" id="si1"></div><span>Detecting missing tags &amp; reading order</span></div>
-          <div class="proc-step"><div class="step-ind" id="si2"></div><span>Running OCR on unreadable pages</span></div>
-          <div class="proc-step"><div class="step-ind" id="si3"></div><span>Generating AI alt text for images</span></div>
-          <div class="proc-step"><div class="step-ind" id="si4"></div><span>Applying PDF/UA tagging &amp; metadata</span></div>
-          <div class="proc-step"><div class="step-ind" id="si5"></div><span>Building bookmark navigation tree</span></div>
-        </div>
-        <div class="proc-bar"><div class="proc-fill" id="proc-fill"></div></div>
+        <p class="hero-note">No credit card required. 1 free scan every month.</p>
       </div>
-      <div class="results-pane" id="results-pane">
-        <div class="result-cols">
-          <div class="result-col">
-            <div class="result-header bad">✕ Before</div>
-            <div class="result-item"><span style="color:var(--red);font-size:.65rem">✗</span> No document tags</div>
-            <div class="result-item"><span style="color:var(--red);font-size:.65rem">✗</span> 14 images missing alt text</div>
-            <div class="result-item"><span style="color:var(--red);font-size:.65rem">✗</span> Reading order broken</div>
-            <div class="result-item"><span style="color:var(--red);font-size:.65rem">✗</span> Language not set</div>
-            <div class="result-item"><span style="color:var(--red);font-size:.65rem">✗</span> No bookmarks</div>
-            <div class="result-item"><span style="color:var(--red);font-size:.65rem">✗</span> Not searchable (scanned)</div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header">
+        <h2>Everything You Need for PDF Compliance</h2>
+        <p>Automated scanning, detailed reports, and clear remediation steps — so you can fix accessibility issues fast.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           </div>
-          <div class="result-divider"><span class="div-arr">→</span></div>
-          <div class="result-col">
-            <div class="result-header good">✓ After</div>
-            <div class="result-item"><span style="color:var(--mint);font-size:.65rem">✓</span> Tagged PDF structure</div>
-            <div class="result-item"><span style="color:var(--mint);font-size:.65rem">✓</span> AI alt text generated</div>
-            <div class="result-item"><span style="color:var(--mint);font-size:.65rem">✓</span> Reading order corrected</div>
-            <div class="result-item"><span style="color:var(--mint);font-size:.65rem">✓</span> Language set to en-US</div>
-            <div class="result-item"><span style="color:var(--mint);font-size:.65rem">✓</span> Bookmarks generated</div>
-            <div class="result-item"><span style="color:var(--mint);font-size:.65rem">✓</span> OCR — fully searchable</div>
+          <h3>Instant PDF Scanning</h3>
+          <p>Upload any PDF and receive a comprehensive accessibility audit within seconds. No manual review needed.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </div>
+          <h3>WCAG & Section 508</h3>
+          <p>Checks against WCAG 2.1 AA standards and Section 508 requirements. Stay compliant with federal and state regulations.</p>
         </div>
-        <div class="result-score">
-          <div><div class="score-lbl">WCAG 2.1 AA compliance</div><div class="score-num">99.5%</div></div>
-          <button class="score-dl">↓ Download remediated PDF</button>
-        </div>
-        <button class="try-again" id="try-again" onclick="resetDemo()">↩ Try another file</button>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- STRIP -->
-<div class="strip">
-  <span class="strip-label">Complies with</span>
-  <div class="strip-badges">
-    <span class="strip-badge">WCAG 2.1 AA</span>
-    <span class="strip-badge">PDF/UA · ISO 14289</span>
-    <span class="strip-badge">Section 508</span>
-    <span class="strip-badge">ADA Title II &amp; III</span>
-    <span class="strip-badge">EN 301 549</span>
-  </div>
-</div>
-
-<!-- DEADLINE BANNER -->
-<div class="deadline-banner">
-  <div class="deadline-inner">
-    <div class="deadline-left">
-      <span class="deadline-icon">⚖️</span>
-      <div>
-        <div class="deadline-title">ADA Title II compliance deadlines are here</div>
-        <div class="deadline-sub">Larger public entities: <strong>April 24, 2026</strong> &nbsp;·&nbsp; Smaller entities &amp; special districts: <strong>April 26, 2027</strong></div>
-      </div>
-    </div>
-    <a href="#" class="deadline-cta">Audit your PDFs free →</a>
-  </div>
-</div>
-
-<!-- HOW IT WORKS -->
-<section class="how" id="how">
-  <div class="how-layout">
-    <div>
-      <div class="sec-eye">Process</div>
-      <h2>Three phases.<br/>One compliant PDF.</h2>
-      <p class="sec-sub">A structured remediation pipeline on every document — no manual tagging, no accessibility specialist required.</p>
-      <div class="steps-list">
-        <div class="step-row"><div class="step-n">01</div><div><div class="step-t">Upload &amp; Analyze</div><div class="step-d">Drop your PDF in. RemeDocs scans for structural issues, missing tags, unreadable pages, and accessibility gaps against WCAG 2.1 criteria.</div></div></div>
-        <div class="step-row"><div class="step-n">02</div><div><div class="step-t">Automated Remediation</div><div class="step-d">The engine applies structure tagging, runs OCR on scanned pages, generates AI-powered alt text, corrects reading order, and sets document metadata.</div></div></div>
-        <div class="step-row"><div class="step-n">03</div><div><div class="step-t">Download &amp; Review</div><div class="step-d">Receive a remediated PDF with a full compliance report. Human-in-the-loop review is available before finalizing.</div></div></div>
-      </div>
-    </div>
-    <div class="reveal d1">
-      <div class="sec-eye">Compliance</div>
-      <div class="std-list" style="margin-top:.75rem;margin-bottom:1.5rem;">
-        <div class="std-item"><div class="std-logo">WCAG<br/>2.1</div><div><div class="std-name">WCAG 2.1 AA</div><div class="std-desc">Web Content Accessibility Guidelines — global benchmark</div></div><div class="std-chip">Supported</div></div>
-        <div class="std-item"><div class="std-logo">PDF/<br/>UA</div><div><div class="std-name">PDF/UA · ISO 14289</div><div class="std-desc">Universal Accessibility standard for PDF documents</div></div><div class="std-chip">Supported</div></div>
-        <div class="std-item"><div class="std-logo">508</div><div><div class="std-name">Section 508</div><div class="std-desc">U.S. federal requirement for accessible electronic content</div></div><div class="std-chip">Supported</div></div>
-        <div class="std-item"><div class="std-logo">ADA</div><div><div class="std-name">ADA Title II &amp; III</div><div class="std-desc">Americans with Disabilities Act digital requirements</div></div><div class="std-chip">Supported</div></div>
-        <div class="std-item"><div class="std-logo">EN<br/>301</div><div><div class="std-name">EN 301 549</div><div class="std-desc">European accessibility standard for ICT products</div></div><div class="std-chip">Supported</div></div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section id="features" style="padding:6rem 3rem;">
-  <div class="centered">
-    <div class="sec-eye">Features</div>
-    <h2>Everything compliance requires</h2>
-    <p class="sec-sub">Full PDF/UA and WCAG 2.1 AA coverage, out of the box.</p>
-  </div>
-  <div class="feat-grid reveal" style="max-width:1100px;margin:3.5rem auto 0;">
-    <div class="feat-card"><div class="feat-ico">🏷️</div><div class="feat-t">Tagged PDF Structure</div><div class="feat-d">Automatically applies heading, paragraph, list, table, and figure tags so screen readers navigate correctly.</div></div>
-    <div class="feat-card"><div class="feat-ico">🔤</div><div class="feat-t">OCR for Scanned Pages</div><div class="feat-d">Tesseract-powered recognition makes image-only pages fully searchable and readable by assistive technology.</div></div>
-    <div class="feat-card"><div class="feat-ico">🖼️</div><div class="feat-t">AI-Generated Alt Text</div><div class="feat-d">Vision AI analyzes every image and generates meaningful, contextual alt text — no manual effort needed.</div></div>
-    <div class="feat-card"><div class="feat-ico">📑</div><div class="feat-t">Reading Order Correction</div><div class="feat-d">Multi-column layouts, sidebars, and complex pages reordered so content flows logically for all readers.</div></div>
-    <div class="feat-card"><div class="feat-ico">🔖</div><div class="feat-t">Bookmark Navigation</div><div class="feat-d">Heading structure auto-generates a complete bookmark tree for keyboard and screen reader navigation.</div></div>
-    <div class="feat-card"><div class="feat-ico">⚡</div><div class="feat-t">REST API Access</div><div class="feat-d">Integrate RemeDocs into your pipeline with a simple REST API. Bulk process thousands of PDFs programmatically.</div></div>
-  </div>
-</section>
-
-<!-- RISK + DIFFERENTIATOR -->
-<section class="risk-section">
-  <div class="risk-layout">
-    <div class="risk-left reveal">
-      <div class="sec-eye">Legal exposure</div>
-      <h2>Accessibility lawsuits<br/>are surging — PDFs<br/>are the #1 cause</h2>
-      <p class="sec-sub">The most common trigger for ADA-related litigation is an inaccessible document or PDF. Remediation is no longer optional — it's legal protection.</p>
-      <div class="risk-stats">
-        <div class="risk-stat">
-          <div class="risk-num">4,000<span>+</span></div>
-          <div class="risk-lbl">ADA web accessibility lawsuits filed in 2023</div>
-        </div>
-        <div class="risk-stat">
-          <div class="risk-num">#1</div>
-          <div class="risk-lbl">Inaccessible PDFs — the most cited violation</div>
-        </div>
-      </div>
-    </div>
-    <div class="diff-right reveal d1">
-      <div class="sec-eye">Why RemeDocs</div>
-      <div class="diff-card">
-        <div class="diff-title">HTML overlays aren't real remediation</div>
-        <div class="diff-body">Some tools wrap your PDFs in an HTML transcript and call it done. That means your actual PDF file remains inaccessible — it can't be downloaded, emailed, or opened offline in a compliant state.</div>
-        <div class="diff-divider"></div>
-        <div class="diff-rows">
-          <div class="diff-row">
-            <div class="diff-col-h">HTML overlay tools</div>
-            <div class="diff-col-h" style="color:var(--mint)">RemeDocs</div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
           </div>
-          <div class="diff-row">
-            <div class="diff-col"><span class="diff-x">✗</span> PDF file stays broken</div>
-            <div class="diff-col"><span class="diff-c">✓</span> Actual PDF is fixed</div>
+          <h3>Actionable Reports</h3>
+          <p>Every issue comes with clear remediation guidance. Know exactly what to fix, where to fix it, and how.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
-          <div class="diff-row">
-            <div class="diff-col"><span class="diff-x">✗</span> Website-only solution</div>
-            <div class="diff-col"><span class="diff-c">✓</span> Works on any PDF, anywhere</div>
+          <h3>Team Collaboration</h3>
+          <p>Unlimited team members on every plan. Share reports, assign fixes, and track compliance across your organization.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
           </div>
-          <div class="diff-row">
-            <div class="diff-col"><span class="diff-x">✗</span> Not PDF/UA compliant</div>
-            <div class="diff-col"><span class="diff-c">✓</span> Full PDF/UA + Section 508</div>
+          <h3>Dashboard & History</h3>
+          <p>Track all scans in one place. View historical compliance scores, monitor trends, and export reports.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           </div>
-          <div class="diff-row">
-            <div class="diff-col"><span class="diff-x">✗</span> No API / bulk processing</div>
-            <div class="diff-col"><span class="diff-c">✓</span> REST API, bulk upload</div>
+          <h3>Secure & Private</h3>
+          <p>Your documents are encrypted in transit and at rest. Files are automatically purged after processing. SOC 2 aligned practices.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <h2>Simple, Transparent Pricing</h2>
+        <p>Start free. Upgrade when you need more scans. All plans include unlimited team members.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Free -->
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3>Free</h3>
+            <div class="pricing-price">
+              <span class="price-amount">$0</span>
+              <span class="price-period">/month</span>
+            </div>
+            <p class="pricing-description">Try it out with one scan per month.</p>
           </div>
-          <div class="diff-row" style="border-bottom:none">
-            <div class="diff-col"><span class="diff-x">✗</span> Government platforms only</div>
-            <div class="diff-col"><span class="diff-c">✓</span> Any org, any industry</div>
+          <ul class="pricing-features">
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              1 PDF scan per month
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Up to 10 MB file size
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Unlimited team members
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Full accessibility report
+            </li>
+          </ul>
+          <a href="https://app.remedocs.com/auth/register?plan=free" class="btn btn-outline btn-block">
+            Get Started Free
+          </a>
+        </div>
+
+        <!-- Starter -->
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3>Starter</h3>
+            <div class="pricing-price">
+              <span class="price-amount">$29.99</span>
+              <span class="price-period">/month</span>
+            </div>
+            <p class="pricing-description">For individuals and small teams getting started.</p>
           </div>
+          <ul class="pricing-features">
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              10 PDF scans per month
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Up to 25 MB file size
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Unlimited team members
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Email support
+            </li>
+          </ul>
+          <a href="https://app.remedocs.com/auth/register?plan=starter" class="btn btn-primary btn-block">
+            Get Started
+          </a>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- FAQ -->
-<section id="faq" style="background:var(--bg-1);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6rem 3rem;">
-  <div class="centered">
-    <div class="sec-eye">FAQ</div>
-    <h2>Common questions</h2>
-    <p class="sec-sub">Everything you need to know before getting started.</p>
-  </div>
-  <div class="faq-wrap">
-    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What types of PDFs does RemeDocs support?<div class="faq-icon">+</div></button><div class="faq-a"><div class="faq-a-inner">RemeDocs handles all common PDF types: text-based documents, scanned image PDFs, mixed documents, multi-column layouts, forms, and documents with tables and figures. Very complex or highly custom layouts may require human-in-the-loop review for maximum accuracy.</div></div></div>
-    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How does AI alt text generation work?<div class="faq-icon">+</div></button><div class="faq-a"><div class="faq-a-inner">Every image in your document is analyzed by a vision AI model that generates a meaningful description of the image's content and purpose. On Professional and Enterprise plans, these descriptions are reviewed in a human-in-the-loop queue before being written into the final PDF.</div></div></div>
-    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Is my document data private and secure?<div class="faq-icon">+</div></button><div class="faq-a"><div class="faq-a-inner">Yes. Documents are encrypted in transit (TLS 1.3) and at rest. Files are processed in isolated environments and automatically deleted after 24 hours unless you opt for storage. Enterprise customers can deploy RemeDocs on-premise with zero data leaving their infrastructure.</div></div></div>
-    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Can I integrate RemeDocs into my existing workflow?<div class="faq-icon">+</div></button><div class="faq-a"><div class="faq-a-inner">Yes. The RemeDocs REST API accepts a PDF upload and returns a remediated file. Professional and Enterprise plans include full API access with documentation, SDKs for Python and Node.js, and webhook support for async processing. See our <a href="#">API docs</a> for details.</div></div></div>
-    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Does RemeDocs guarantee legal compliance?<div class="faq-icon">+</div></button><div class="faq-a"><div class="faq-a-inner">RemeDocs produces documents that conform to WCAG 2.1 AA, PDF/UA, Section 508, and ADA technical standards. However, accessibility compliance also depends on content quality and context. We strongly recommend human review for legally sensitive documents. RemeDocs is not a substitute for legal counsel.</div></div></div>
-    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How long does remediation take?<div class="faq-icon">+</div></button><div class="faq-a"><div class="faq-a-inner">Most documents under 50 pages are remediated in under 30 seconds. Larger documents or those with many scanned pages requiring OCR may take 1–3 minutes. The API supports async processing with webhooks for long-running jobs.</div></div></div>
-    <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What's human-in-the-loop remediation?<div class="faq-icon">+</div></button><div class="faq-a"><div class="faq-a-inner">Automated remediation applies all fixes programmatically — fast and scalable. Human-in-the-loop (Pro and Enterprise) routes the remediated document through a review queue where an accessibility specialist verifies alt text, reading order, and complex tables before delivery. Recommended for high-stakes public documents.</div></div></div>
-  </div>
-</section>
-
-<!-- TESTIMONIALS -->
-<section id="testimonials" style="padding:6rem 3rem;background:var(--bg);">
-  <div class="centered reveal">
-    <div class="sec-eye">Testimonials</div>
-    <h2>Trusted by compliance teams</h2>
-    <p class="sec-sub">From government agencies to enterprise legal departments — teams using RemeDocs cut remediation time from weeks to seconds.</p>
-  </div>
-  <div class="testi-grid">
-    <div class="testi-card reveal">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-quote">"We had over 4,000 legacy PDFs on our public portal. RemeDocs processed the entire backlog in a single afternoon. What would have taken our team months — and a six-figure remediation contract — was done before end of day."</p>
-      <div class="testi-person">
-        <div class="testi-avatar">RL</div>
-        <div>
-          <div class="testi-name">Rachel Loomis</div>
-          <div class="testi-role">Digital Accessibility Director, King County Government</div>
-        </div>
-      </div>
-    </div>
-    <div class="testi-card reveal d1">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-quote">"The API integration was painless — we hooked it into our document management system in a day. Now every PDF that gets published is automatically remediated before it ever goes live. It's become invisible infrastructure."</p>
-      <div class="testi-person">
-        <div class="testi-avatar">MO</div>
-        <div>
-          <div class="testi-name">Marcus Osei</div>
-          <div class="testi-role">Senior Engineer, LexDocs Platform</div>
-        </div>
-      </div>
-    </div>
-    <div class="testi-card reveal d2">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-quote">"We were hit with an ADA complaint about our annual report PDFs. RemeDocs remediated three years of filings in under an hour and generated audit certificates for each one. The complaint was resolved within a week."</p>
-      <div class="testi-person">
-        <div class="testi-avatar">ST</div>
-        <div>
-          <div class="testi-name">Sofia Tran</div>
-          <div class="testi-role">General Counsel, Meridian Financial Group</div>
-        </div>
-      </div>
-    </div>
-    <div class="testi-card reveal d1">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-quote">"Other tools gave us an HTML page and called it remediation. RemeDocs actually fixes the PDF — we can download it, email it, and it passes every checker we've thrown at it. That's the difference."</p>
-      <div class="testi-person">
-        <div class="testi-avatar">JB</div>
-        <div>
-          <div class="testi-name">James Beaumont</div>
-          <div class="testi-role">Web Accessibility Lead, State of Colorado OIT</div>
-        </div>
-      </div>
-    </div>
-    <div class="testi-card reveal d2">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-quote">"We manage documents for 200+ nonprofit clients. The bulk upload and API made it possible to scale remediation across all of them without adding headcount. RemeDocs paid for itself in the first billing cycle."</p>
-      <div class="testi-person">
-        <div class="testi-avatar">AK</div>
-        <div>
-          <div class="testi-name">Anjali Kapoor</div>
-          <div class="testi-role">CTO, CivicReach Agency</div>
-        </div>
-      </div>
-    </div>
-    <div class="testi-card reveal d3">
-      <div class="testi-stars">★★★★★</div>
-      <p class="testi-quote">"Reading order and alt text quality blew me away. I ran some of our most complex multi-column policy briefs through it and tested them personally with NVDA. Best automated output I've seen from any tool."</p>
-      <div class="testi-person">
-        <div class="testi-avatar">DW</div>
-        <div>
-          <div class="testi-name">Derek Wills</div>
-          <div class="testi-role">Certified PDF Accessibility Specialist, AccessPath Consulting</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CONTACT CTA -->
-<section class="contact-cta" id="contact">
-  <div class="contact-cta-inner reveal">
-    <div class="contact-cta-left">
-      <div class="sec-eye">Talk to us</div>
-      <h2>Ready to clear your backlog?</h2>
-      <p>Whether you have 50 PDFs or 50,000, we'll put together a remediation plan sized to your organization. Most teams are up and running within a week.</p>
-      <div class="contact-cta-bullets">
-        <div class="contact-cta-bullet">Free PDF sample audit included</div>
-        <div class="contact-cta-bullet">Custom pricing for volume and enterprise</div>
-        <div class="contact-cta-bullet">API integration support on all plans</div>
-        <div class="contact-cta-bullet">Response within one business day</div>
-      </div>
-    </div>
-    <div class="contact-cta-right">
-      <div id="cta-form-wrap">
-        <div class="contact-modal-row">
-          <input class="contact-inline-input" id="cta-name" type="text" placeholder="Your name"/>
-          <input class="contact-inline-input" id="cta-company" type="text" placeholder="Organization"/>
-        </div>
-        <input class="contact-inline-input" id="cta-email" type="email" placeholder="Work email"/>
-        <textarea class="contact-inline-textarea" id="cta-message" placeholder="Tell us about your document volume and compliance goals…"></textarea>
-        <button class="contact-inline-submit" id="cta-submit" onclick="submitContact('cta')">Send message →</button>
-        <p style="font-size:.7rem;color:var(--text-3);text-align:center;margin-top:.5rem;">No spam. We'll respond within 1 business day.</p>
-      </div>
-      <div class="contact-success" id="cta-success">
-        <div class="contact-success-icon">✉️</div>
-        <div class="contact-success-title">Message sent!</div>
-        <div class="contact-success-sub">We've forwarded your message to our sales team and sent a confirmation to your inbox. Expect to hear from us within one business day.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-</div><!-- /page-home -->
-
-<!-- PAGE: HOW IT WORKS -->
-<div id="page-how" class="page">
-  <div class="blog-hero" style="text-align:left;">
-    <div style="max-width:1100px;margin:0 auto;">
-      <div class="sec-eye">Under the hood</div>
-      <h1>How RemeDocs works</h1>
-      <p>A three-phase pipeline that turns any PDF — scanned, complex, or legacy — into a fully compliant accessible document in seconds.</p>
-    </div>
-  </div>
-  <div style="max-width:1100px;margin:0 auto;padding:4rem 3rem;">
-    <div style="display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;">
-      <!-- Phase 1 -->
-      <div class="hiw-phase">
-        <div class="hiw-phase-label">
-          <div class="hiw-phase-num" style="color:rgba(242,169,59,.2)">01</div>
-          <div class="hiw-phase-name">Analysis</div>
-          <div class="hiw-phase-tag a">Phase 1</div>
-        </div>
-        <div class="hiw-phase-content">
-          <h3>Document intelligence & structure detection</h3>
-          <p>Before any remediation begins, RemeDocs builds a full map of your document — page layout, content types, reading flow, and existing tag structure. This analysis phase is what makes the downstream fixes accurate rather than guessed.</p>
-          <div class="hiw-checks">
-            <div class="hiw-check"><div class="hiw-check-dot a">✓</div><div><strong>OCR & text extraction</strong> — Tesseract-powered OCR for scanned pages, PyMuPDF for native text. Handles handwriting, mixed content, and multi-language documents.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot a">✓</div><div><strong>Layout classification</strong> — Detects single-column, multi-column, table-heavy, form, and mixed layouts. Each gets routed to the appropriate remediation path.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot a">✓</div><div><strong>Reading order inference</strong> — Uses spatial analysis and semantic heuristics to establish logical content flow, even in complex multi-column and sidebar layouts.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot a">✓</div><div><strong>Existing tag audit</strong> — Evaluates any pre-existing tags for accuracy. Broken or malformed tags are flagged and re-built rather than simply preserved.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot a">✓</div><div><strong>Image inventory</strong> — Catalogs every image, figure, chart, and decorative element. Each is classified as informational or decorative to guide alt text generation.</div></div>
+        <!-- Growth (Popular) -->
+        <div class="pricing-card pricing-card-popular">
+          <div class="popular-badge">Most Popular</div>
+          <div class="pricing-header">
+            <h3>Growth</h3>
+            <div class="pricing-price">
+              <span class="price-amount">$99.99</span>
+              <span class="price-period">/month</span>
+            </div>
+            <p class="pricing-description">For teams with regular compliance needs.</p>
           </div>
+          <ul class="pricing-features">
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              100 PDF scans per month
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Up to 100 MB file size
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Unlimited team members
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Priority email support
+            </li>
+          </ul>
+          <a href="https://app.remedocs.com/auth/register?plan=growth" class="btn btn-primary btn-block">
+            Get Started
+          </a>
         </div>
-      </div>
-      <!-- Phase 2 -->
-      <div class="hiw-phase" style="background:var(--bg-2);">
-        <div class="hiw-phase-label">
-          <div class="hiw-phase-num" style="color:rgba(12,242,180,.15)">02</div>
-          <div class="hiw-phase-name">Remediation</div>
-          <div class="hiw-phase-tag r">Phase 2</div>
-        </div>
-        <div class="hiw-phase-content">
-          <h3>AI-powered accessibility fixes</h3>
-          <p>With the document map in hand, RemeDocs applies a full suite of accessibility fixes — structural tagging, alt text generation, heading hierarchy, and metadata — programmatically and at scale.</p>
-          <div class="hiw-checks">
-            <div class="hiw-check"><div class="hiw-check-dot r">✓</div><div><strong>Full PDF tagging</strong> — Builds a complete tag tree: Document, Part, Article, Section, P, H1–H6, Table, TR, TD, Figure, and Span tags per the PDF/UA specification.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot r">✓</div><div><strong>AI alt text</strong> — Every informational image is described by a vision model (Claude). Descriptions capture content, context, and purpose — not just visual appearance.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot r">✓</div><div><strong>Heading hierarchy repair</strong> — Detects visual heading styles and maps them to semantic H1–H6 levels. Skipped levels and ambiguous headings are resolved automatically.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot r">✓</div><div><strong>Table structure</strong> — Identifies header rows, scope attributes, and merged cells. Complex tables get TH/TD mapping with proper scope and id/headers relationships.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot r">✓</div><div><strong>Link text remediation</strong> — "Click here" and bare-URL links are rewritten to be descriptive. Anchor text is inferred from surrounding context.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot r">✓</div><div><strong>Language & metadata</strong> — Document language is set in XMP metadata and the PDF catalog. Title, author, and subject are populated or corrected.</div></div>
+
+        <!-- Enterprise -->
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3>Enterprise</h3>
+            <div class="pricing-price">
+              <span class="price-amount">Custom</span>
+            </div>
+            <p class="pricing-description">For organizations with high-volume or custom needs.</p>
           </div>
-        </div>
-      </div>
-      <!-- Phase 3 -->
-      <div class="hiw-phase">
-        <div class="hiw-phase-label">
-          <div class="hiw-phase-num" style="color:rgba(59,142,248,.15)">03</div>
-          <div class="hiw-phase-name">Output</div>
-          <div class="hiw-phase-tag o">Phase 3</div>
-        </div>
-        <div class="hiw-phase-content">
-          <h3>Compliant file delivery & audit trail</h3>
-          <p>The remediated PDF is packaged to the PDF/UA-1 specification, validated against WCAG 2.1 AA, and delivered with a full audit certificate. Every fix is logged for traceability.</p>
-          <div class="hiw-checks">
-            <div class="hiw-check"><div class="hiw-check-dot o">✓</div><div><strong>PDF/UA-1 packaging</strong> — The output PDF is written to ISO 14289-1 (PDF/UA) standard using pikepdf. DisplayDocTitle is set, tab order is standardized, and the XMP metadata includes the PDF/UA identifier.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot o">✓</div><div><strong>Automated validation</strong> — The output is checked with PAC 2024 and VeraPDF rules before delivery. Issues that can't be auto-resolved are flagged in the audit report.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot o">✓</div><div><strong>Audit certificate</strong> — Every document gets a signed PDF/UA conformance certificate with a timestamp, issue log, fix summary, and test results. Suitable for legal and compliance records.</div></div>
-            <div class="hiw-check"><div class="hiw-check-dot o">✓</div><div><strong>API delivery</strong> — Remediated files are returned via REST API, S3-compatible storage, or webhook callback. Async processing with job tracking for large batches.</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- CTA -->
-    <div class="hiw-cta-band">
-      <div class="sec-eye">Get started</div>
-      <h2>See it on your own documents</h2>
-      <p>Upload a PDF and get a free accessibility audit — no credit card, no commitment.</p>
-      <a href="#" onclick="navigate('audit');return false;" class="btn-p">Get your free audit →</a>
-    </div>
-  </div>
-</div><!-- /page-how -->
-
-<!-- PAGE: BLOG -->
-<div id="page-blog" class="page">
-  <div class="blog-hero">
-    <div style="max-width:1100px;margin:0 auto;">
-      <div class="sec-eye">Blog</div>
-      <h1>Accessibility insights</h1>
-      <p>Practical guides on PDF compliance, ADA law, WCAG standards, and building accessible document workflows.</p>
-      <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.25rem;" id="blog-filter-btns"></div>
-    </div>
-  </div>
-  <div style="max-width:1100px;margin:0 auto;padding:3rem 3rem 1.5rem;">
-    <div id="blog-grid" class="blog-grid" style="margin:0;padding:0;"></div>
-    <div id="blog-pagination" style="display:flex;align-items:center;justify-content:center;gap:.5rem;padding:2.5rem 0 1rem;"></div>
-  </div>
-</div><!-- /page-blog -->
-
-<!-- BLOG POST MODAL -->
-<div id="blog-post-modal" class="blog-post">
-  <div class="blog-post-inner">
-    <button class="blog-post-back" onclick="closePost()">← Back to blog</button>
-    <div id="bp-tag" class="blog-post-tag"></div>
-    <div id="bp-title" class="blog-post-title"></div>
-    <div id="bp-meta" class="blog-post-meta"></div>
-    <div id="bp-body" class="blog-post-body"></div>
-  </div>
-</div>
-
-<!-- PAGE: AUDIT -->
-<div id="page-audit" class="page">
-  <div class="audit-hero">
-    <div class="sec-eye">Free tool</div>
-    <h1>PDF Accessibility Audit</h1>
-    <p>Upload any PDF and get an instant accessibility report — issues flagged, severity rated, and fixes explained. No account needed.</p>
-  </div>
-  <div class="audit-wrap">
-    <div class="audit-box">
-      <div class="audit-bar">
-        <div class="dot-row"><div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div></div>
-        <span style="font-size:.72rem;color:var(--text-3);margin-left:.4rem;">RemeDocs — PDF Accessibility Audit</span>
-      </div>
-      <!-- Upload state -->
-      <div id="audit-upload-state">
-        <div class="audit-drop" id="audit-drop" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleAuditDrop(event)">
-          <span style="font-size:2rem;display:block;margin-bottom:.75rem;">📋</span>
-          <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:.95rem;margin-bottom:.3rem;">Drop your PDF here</div>
-          <div style="font-size:.78rem;color:var(--text-2);">or <span style="color:var(--mint);cursor:pointer;font-weight:500;" onclick="document.getElementById('audit-file-input').click()">browse to upload</span></div>
-          <input type="file" id="audit-file-input" accept=".pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer;" onchange="handleAuditFile(this.files[0])"/>
-        </div>
-        <div class="audit-form">
-          <div class="audit-fields">
-            <input class="audit-input" id="audit-name" type="text" placeholder="Full name *" oninput="checkAuditReady()" required/>
-            <input class="audit-input" id="audit-email" type="email" placeholder="Work email *" oninput="checkAuditReady()" required/>
-          </div>
-          <button class="audit-submit" id="audit-submit" onclick="runAudit()" disabled>Enter your name and email to continue</button>
-        </div>
-      </div>
-      <!-- Processing state -->
-      <div id="audit-processing" class="audit-processing">
-        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;padding:.85rem 1rem;background:var(--bg-2);border-radius:9px;border:1px solid var(--line);">
-          <span style="font-size:1.1rem;">📄</span>
-          <div>
-            <div id="audit-proc-name" style="font-size:.85rem;font-weight:500;"></div>
-            <div id="audit-proc-status" style="font-size:.72rem;color:var(--text-3);margin-top:.15rem;">Analyzing…</div>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:.6rem;" id="audit-steps-list"></div>
-        <div style="height:3px;background:var(--line);border-radius:2px;margin-top:1.25rem;overflow:hidden;"><div id="audit-fill" style="height:100%;background:linear-gradient(90deg,var(--mint),#3BFFD4);border-radius:2px;width:0%;transition:width .4s ease;"></div></div>
-      </div>
-      <!-- Result state -->
-      <div id="audit-result" class="audit-result" style="display:none;">
-        <div id="audit-result-content"></div>
-        <div class="audit-cta-strip">
-          <a href="#" onclick="openContact();return false;" class="btn-p" style="font-size:.82rem;padding:.55rem 1.25rem;">Talk to our team about remediation →</a>
+          <ul class="pricing-features">
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Custom scan volume
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Up to 500 MB file size
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Unlimited team members
+            </li>
+            <li>
+              <svg width="16" height="16" fill="none" stroke="#0CF2B4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 4 6.5 14 1 8.5"/></svg>
+              Dedicated phone & email support
+            </li>
+          </ul>
+          <a href="mailto:sales@remedocs.com" class="btn btn-outline btn-block">
+            Contact Sales
+          </a>
         </div>
       </div>
     </div>
-    <p style="text-align:center;font-size:.72rem;color:var(--text-3);margin-top:1rem;">Your PDF is analyzed locally and is not stored. Results are generated by AI and may not catch every issue.</p>
-  </div>
-</div><!-- /page-audit -->
+  </section>
 
-<!-- CONTACT MODAL -->
-<div id="contact-modal" class="contact-modal">
-  <div class="contact-modal-inner">
-    <button class="contact-modal-close" onclick="closeContact()">✕</button>
-    <div id="modal-form-wrap">
-      <div class="sec-eye">Get in touch</div>
-      <div class="contact-modal-title">Talk to our team</div>
-      <div class="contact-modal-sub">Tell us about your PDF volume and compliance goals. We'll get back to you within one business day with a plan and pricing.</div>
-      <div class="contact-modal-fields">
-        <div class="contact-modal-row">
-          <input class="contact-inline-input" id="modal-name" type="text" placeholder="Your name"/>
-          <input class="contact-inline-input" id="modal-company" type="text" placeholder="Organization"/>
-        </div>
-        <input class="contact-inline-input" id="modal-email" type="email" placeholder="Work email"/>
-        <input class="contact-inline-input" id="modal-phone" type="tel" placeholder="Phone (optional)"/>
-        <textarea class="contact-inline-textarea" id="modal-message" placeholder="Tell us about your document volume, compliance deadline, and any questions…"></textarea>
-        <button class="contact-inline-submit" id="modal-submit" onclick="submitContact('modal')">Send message →</button>
-        <p style="font-size:.7rem;color:var(--text-3);text-align:center;margin-top:.25rem;">No spam. Response within 1 business day.</p>
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Ready to Make Your PDFs Accessible?</h2>
+        <p>Join organizations that trust RemeDocs for PDF accessibility compliance. Start scanning in under a minute.</p>
+        <a href="https://app.remedocs.com/auth/register?plan=free" class="btn btn-primary btn-lg">
+          Start Free Today
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
       </div>
     </div>
-    <div class="contact-success" id="modal-success">
-      <div class="contact-success-icon">✉️</div>
-      <div class="contact-success-title">Message sent!</div>
-      <div class="contact-success-sub">Your message is on its way to our sales team. We've also sent a confirmation to your inbox. We'll be in touch within one business day.</div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="nav-logo">RemeDocs</span>
+        <p>Automated PDF accessibility compliance.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://app.remedocs.com/auth/login">Sign In</a>
+        <a href="https://app.remedocs.com/auth/register?plan=free">Get Started</a>
+        <a href="mailto:sales@remedocs.com">Contact Sales</a>
+      </div>
+      <div class="footer-copy">
+        &copy; 2025 RemeDocs. All rights reserved.
+      </div>
     </div>
-  </div>
-</div>
+  </footer>
 
-<!-- FOOTER -->
-<footer>
-  <a href="#" class="logo"><span class="logo-dot"></span>RemeDocs</a>
-  <ul class="ft-links">
-    <li><a href="#">Docs</a></li>
-    <li><a href="#">API Reference</a></li>
-    <li><a href="#">Blog</a></li>
-    <li><a href="#">Privacy</a></li>
-    <li><a href="#">Terms</a></li>
-  </ul>
-  <div class="ft-copy">© 2026 RemeDocs, Inc.</div>
-</footer>
-
-<script>
-// ── ROUTER ──────────────────────────────────────────────
-let currentPage = 'home';
-function navigate(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById('page-' + page);
-  if (target) { target.classList.add('active'); currentPage = page; }
-  else { document.getElementById('page-home').classList.add('active'); currentPage = 'home'; }
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  document.querySelectorAll('[data-nav]').forEach(a => {
-    a.classList.toggle('nav-active', a.dataset.nav === page);
-  });
-  if (page === 'audit') checkAuditUsed();
-}
-
-// ── UPLOAD DEMO (home) ───────────────────────────────────
-const dropzone=document.getElementById('dropzone'),fileInput=document.getElementById('file-input'),processing=document.getElementById('processing'),resultPane=document.getElementById('results-pane');
-if(dropzone){
-  dropzone.addEventListener('dragover',e=>{e.preventDefault();dropzone.classList.add('dragover');});
-  dropzone.addEventListener('dragleave',()=>dropzone.classList.remove('dragover'));
-  dropzone.addEventListener('drop',e=>{e.preventDefault();dropzone.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f)startDemo(f);});
-  fileInput.addEventListener('change',()=>{if(fileInput.files[0])startDemo(fileInput.files[0]);});
-}
-function startDemo(file){
-  dropzone.style.display='none';processing.style.display='block';
-  document.getElementById('proc-fname').textContent=file.name;
-  document.getElementById('proc-fsize').textContent=(file.size/1048576).toFixed(1)+' MB · Analyzing…';
-  let i=0;
-  function tick(){
-    if(i>0){const p=document.getElementById('si'+(i-1));p.className='step-ind done';p.textContent='✓';}
-    if(i<6){document.getElementById('si'+i).className='step-ind running';document.getElementById('proc-fill').style.width=((i+1)/6*85)+'%';i++;setTimeout(tick,500+Math.random()*300);}
-    else{const last=document.getElementById('si5');last.className='step-ind done';last.textContent='✓';document.getElementById('proc-fill').style.width='100%';setTimeout(()=>{processing.style.display='none';resultPane.style.display='block';setTimeout(()=>{document.getElementById('try-again').style.display='block';},800);},400);}
-  }
-  tick();
-}
-function resetDemo(){
-  resultPane.style.display='none';document.getElementById('try-again').style.display='none';
-  for(let k=0;k<6;k++){const e=document.getElementById('si'+k);if(e){e.className='step-ind';e.textContent='';}}
-  document.getElementById('proc-fill').style.width='0%';
-  fileInput.value='';dropzone.style.display='';
-}
-
-// ── FAQ ──────────────────────────────────────────────────
-function toggleFaq(btn){
-  const item=btn.parentElement,ans=item.querySelector('.faq-a'),isOpen=item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(i=>{i.classList.remove('open');i.querySelector('.faq-a').style.maxHeight='0';});
-  if(!isOpen){item.classList.add('open');ans.style.maxHeight=ans.scrollHeight+'px';}
-}
-
-// ── WAITLIST ─────────────────────────────────────────────
-function joinWaitlist(){
-  const email=document.getElementById('wl-email').value.trim();
-  if(!email||!email.includes('@')){const inp=document.getElementById('wl-email');inp.style.borderColor='rgba(242,92,92,.5)';setTimeout(()=>inp.style.borderColor='',1500);return;}
-  document.getElementById('wl-form').style.display='none';
-  const c=document.getElementById('wl-confirm');c.style.display='flex';
-}
-
-// ── SCROLL REVEAL ────────────────────────────────────────
-const ro=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');ro.unobserve(e.target);}}),{threshold:.08});
-document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
-
-// ── SCORE BARS ───────────────────────────────────────────
-const sv=document.getElementById('score-visual');
-if(sv){const barObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){sv.querySelectorAll('.sv-fill').forEach((bar,i)=>{const w=parseFloat(bar.getAttribute('data-w')||1);setTimeout(()=>{bar.style.transition='transform 1.1s cubic-bezier(.16,1,.3,1)';bar.style.transform='scaleX('+w+')';},i*70);});barObs.unobserve(e.target);}});},{threshold:.2});barObs.observe(sv);}
-
-// ── FEATURE CARD CURSOR GLOW ──────────────────────────────
-document.querySelectorAll('.feat-card').forEach(c=>{c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect();c.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');c.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');});});
-
-// ── NAV SCROLL ───────────────────────────────────────────
-window.addEventListener('scroll',()=>{document.querySelector('nav').style.height=window.scrollY>40?'52px':'60px';});
-
-// ── CONTACT MODAL ─────────────────────────────────────────
-function openContact() {
-  document.getElementById('contact-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closeContact() {
-  document.getElementById('contact-modal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.getElementById('contact-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeContact();
-});
-
-async function submitContact(source) {
-  const isModal = source === 'modal';
-  const name    = document.getElementById(isModal ? 'modal-name'    : 'cta-name').value.trim();
-  const company = document.getElementById(isModal ? 'modal-company' : 'cta-company').value.trim();
-  const email   = document.getElementById(isModal ? 'modal-email'   : 'cta-email').value.trim();
-  const message = document.getElementById(isModal ? 'modal-message' : 'cta-message').value.trim();
-  const phone   = isModal ? (document.getElementById('modal-phone')?.value.trim() || '') : '';
-
-  if (!email || !email.includes('@')) {
-    const el = document.getElementById(isModal ? 'modal-email' : 'cta-email');
-    el.style.borderColor = 'rgba(242,92,92,.5)';
-    setTimeout(() => el.style.borderColor = '', 1500);
-    return;
-  }
-  if (!message) {
-    const el = document.getElementById(isModal ? 'modal-message' : 'cta-message');
-    el.style.borderColor = 'rgba(242,92,92,.5)';
-    setTimeout(() => el.style.borderColor = '', 1500);
-    return;
-  }
-
-  const submitBtn = document.getElementById(isModal ? 'modal-submit' : 'cta-submit');
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Sending…';
-
-  const salesEmail = `New RemeDocs inquiry from ${name || 'unknown'} at ${company || 'unknown organization'}.
-
-Name: ${name || '—'}
-Company: ${company || '—'}
-Email: ${email}
-Phone: ${phone || '—'}
-
-Message:
-${message}
-
----
-Submitted via remedocs.com${isModal ? ' (nav modal)' : ' (homepage CTA)'}`;
-
-  const confirmEmail = `Hi ${name ? name.split(' ')[0] : 'there'},
-
-Thanks for reaching out to RemeDocs! We've received your message and our team will get back to you within one business day.
-
-Here's a copy of what you sent:
----
-${message}
----
-
-In the meantime, feel free to try our free PDF accessibility audit at remedocs.com.
-
-Best,
-The RemeDocs Team
-sales@remedocs.com`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: `Please send two emails using the Gmail tool:
-
-1. Send an email TO: sales@remedocs.com, SUBJECT: "New inquiry: ${name || email} — RemeDocs", BODY: ${JSON.stringify(salesEmail)}
-
-2. Send a confirmation email TO: ${email}, SUBJECT: "We got your message — RemeDocs", BODY: ${JSON.stringify(confirmEmail)}
-
-After sending both, reply with just the word: done`
-        }],
-        mcp_servers: [{
-          type: 'url',
-          url: 'https://gmail.mcp.claude.com/mcp',
-          name: 'gmail'
-        }]
-      })
+  <script>
+    // Sticky nav background on scroll
+    window.addEventListener('scroll', () => {
+      document.getElementById('nav').classList.toggle('nav-scrolled', window.scrollY > 20);
     });
-
-    const data = await res.json();
-    const text = data.content?.map(b => b.text || '').join('').toLowerCase() || '';
-    const toolsUsed = data.content?.some(b => b.type === 'mcp_tool_use');
-
-    if (toolsUsed || text.includes('done') || text.includes('sent') || res.ok) {
-      showContactSuccess(source);
-    } else {
-      throw new Error('Send uncertain');
-    }
-  } catch (err) {
-    // Fallback: still show success (form was captured) but note delivery
-    console.warn('Email send error:', err);
-    showContactSuccess(source);
-  }
-}
-
-function showContactSuccess(source) {
-  const isModal = source === 'modal';
-  const formWrap = document.getElementById(isModal ? 'modal-form-wrap' : 'cta-form-wrap');
-  const success  = document.getElementById(isModal ? 'modal-success'   : 'cta-success');
-  if (formWrap) formWrap.style.display = 'none';
-  if (success)  success.style.display  = 'block';
-}
-
-// ── BLOG POSTS DATA ──────────────────────────────────────
-const posts = [
-  {tag:'Compliance',date:'Mar 5, 2026',read:'8 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><line x1="0" y1="30" x2="400" y2="30" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="0" y1="60" x2="400" y2="60" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="0" y1="90" x2="400" y2="90" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="0" y1="120" x2="400" y2="120" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="80" y1="0" x2="80" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="160" y1="0" x2="160" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="240" y1="0" x2="240" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="320" y1="0" x2="320" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><rect x="60" y="110" width="80" height="6" rx="3" fill="rgba(242,169,59,0.5)"/><rect x="60" y="84" width="110" height="6" rx="3" fill="rgba(242,169,59,0.3)"/><rect x="60" y="58" width="140" height="6" rx="3" fill="rgba(242,169,59,0.2)"/><rect x="210" y="110" width="130" height="6" rx="3" fill="rgba(12,242,180,0.5)"/><rect x="210" y="84" width="100" height="6" rx="3" fill="rgba(12,242,180,0.3)"/><rect x="210" y="58" width="80" height="6" rx="3" fill="rgba(12,242,180,0.2)"/><line x1="160" y1="20" x2="160" y2="130" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="3 3"/><text x="34" y="117" fill="rgba(242,169,59,0.25)" font-size="9" font-family="monospace">BEFORE</text><text x="210" y="117" fill="rgba(12,242,180,0.25)" font-size="9" font-family="monospace">AFTER</text><circle cx="340" cy="35" r="20" fill="none" stroke="rgba(12,242,180,0.15)" stroke-width="1.5"/><circle cx="340" cy="35" r="12" fill="none" stroke="rgba(12,242,180,0.25)" stroke-width="1"/><line x1="334" y1="35" x2="346" y2="35" stroke="rgba(12,242,180,0.5)" stroke-width="1.5"/><line x1="340" y1="29" x2="340" y2="41" stroke="rgba(12,242,180,0.5)" stroke-width="1.5"/></svg>`,
-   title:'ADA Title II Deadlines Are Here — What Every Government Agency Must Do Now',
-   excerpt:'The April 2026 and 2027 deadlines for WCAG 2.1 AA compliance are the most significant accessibility mandates in years. Here\'s exactly what\'s required.',
-   body:`<p>The clock has officially run out for many public entities. Hard deadlines for WCAG 2.1 AA compliance: larger entities face <strong>April 24, 2026</strong>, smaller entities have until <strong>April 26, 2027</strong>.</p><h2>What exactly is required?</h2><p>All web content — including PDFs on government websites — must conform to WCAG 2.1 Level AA. For PDFs: fully tagged with heading structure, alt text on images, logical reading order, document language set, and bookmarks on docs over 9 pages.</p><h2>The scale of the problem</h2><p>The average county government has tens of thousands of publicly-posted PDFs. Manual remediation at $5–15 per page would cost millions and take years.</p><div class="callout">💡 The DOJ rule allows for "equivalent facilitation" — automated remediation tools that produce genuinely accessible output qualify under this provision.</div><h2>What to do right now</h2><p>Start with an audit. Inventory your PDFs, score each for compliance, and prioritize by public impact — budget documents, notices, meeting minutes, and forms first.</p>`
-  },
-  {tag:'Technical',date:'Feb 19, 2026',read:'6 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><rect x="40" y="30" width="120" height="90" rx="5" fill="#111520" stroke="rgba(242,92,92,0.3)" stroke-width="1"/><rect x="46" y="40" width="70" height="5" rx="2" fill="rgba(242,92,92,0.4)"/><rect x="46" y="52" width="95" height="4" rx="2" fill="rgba(255,255,255,0.07)"/><rect x="46" y="62" width="80" height="4" rx="2" fill="rgba(255,255,255,0.07)"/><rect x="46" y="72" width="90" height="4" rx="2" fill="rgba(255,255,255,0.07)"/><rect x="46" y="82" width="65" height="4" rx="2" fill="rgba(255,255,255,0.07)"/><rect x="46" y="96" width="50" height="14" rx="3" fill="rgba(242,92,92,0.12)" stroke="rgba(242,92,92,0.2)" stroke-width="1"/><text x="50" y="107" fill="rgba(242,92,92,0.5)" font-size="7" font-family="monospace">&lt;html&gt;</text><text x="55" y="117" fill="rgba(242,92,92,0.3)" font-size="7" font-family="monospace">overlay</text><line x1="175" y1="75" x2="225" y2="75" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="4 3"/><polygon points="222,70 232,75 222,80" fill="rgba(255,255,255,0.1)"/><rect x="240" y="30" width="120" height="90" rx="5" fill="#111520" stroke="rgba(12,242,180,0.35)" stroke-width="1"/><rect x="246" y="40" width="70" height="5" rx="2" fill="rgba(12,242,180,0.5)"/><rect x="246" y="52" width="95" height="4" rx="2" fill="rgba(255,255,255,0.1)"/><rect x="246" y="62" width="80" height="4" rx="2" fill="rgba(255,255,255,0.1)"/><rect x="246" y="72" width="90" height="4" rx="2" fill="rgba(255,255,255,0.1)"/><rect x="246" y="82" width="65" height="4" rx="2" fill="rgba(255,255,255,0.1)"/><rect x="246" y="96" width="50" height="14" rx="3" fill="rgba(12,242,180,0.1)" stroke="rgba(12,242,180,0.25)" stroke-width="1"/><text x="249" y="107" fill="rgba(12,242,180,0.6)" font-size="7" font-family="monospace">PDF/UA</text><circle cx="294" cy="42" r="5" fill="rgba(12,242,180,0.15)" stroke="rgba(12,242,180,0.4)" stroke-width="1"/><text x="291" y="45" fill="rgba(12,242,180,0.7)" font-size="6">✓</text></svg>`,
-   title:'HTML Overlays Are Not PDF Remediation: The Important Difference',
-   excerpt:'Some tools wrap your PDFs in an HTML transcript and call it compliance. We break down why this matters legally, technically, and for real users.',
-   body:`<p>A growing category of tools intercepts PDF links and serves an HTML transcript. The PDF stays broken. The vendor calls it accessible.</p><h2>Why this matters legally</h2><p>HTML transcripts can qualify as an "alternative format" — but this creates a two-tier experience. Users without disabilities get the original PDF. Users with disabilities get a different, HTML-only version. The PDF file remains inaccessible for email, download, or offline use.</p><h2>What genuine PDF/UA compliance looks like</h2><p>A truly remediated PDF passes ISO 14289-1 validation. Complete tag tree, correct reading order, alt text in XMP attributes, and the PDF/UA identifier in metadata. Any PDF reader can open it properly.</p><div class="callout">⚠️ Test this yourself: download a PDF "made accessible" by an overlay tool. Open in Adobe Acrobat, run the Accessibility Checker. Watch it fail.</div>`
-  },
-  {tag:'AI & Accessibility',date:'Feb 3, 2026',read:'10 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><rect x="40" y="25" width="150" height="100" rx="6" fill="#111520" stroke="rgba(255,255,255,0.08)" stroke-width="1"/><rect x="52" y="37" width="126" height="76" rx="4" fill="#0a0d13"/><circle cx="85" cy="65" r="16" fill="rgba(12,242,180,0.06)" stroke="rgba(12,242,180,0.12)" stroke-width="1"/><polygon points="110,85 130,55 150,85" fill="rgba(12,242,180,0.05)" stroke="rgba(12,242,180,0.1)" stroke-width="1"/><line x1="52" y1="55" x2="178" y2="55" stroke="rgba(12,242,180,0.15)" stroke-width="0.5"/><line x1="52" y1="65" x2="178" y2="65" stroke="rgba(12,242,180,0.15)" stroke-width="0.5"/><line x1="52" y1="75" x2="178" y2="75" stroke="rgba(12,242,180,0.15)" stroke-width="0.5"/><rect x="52" y="100" width="126" height="10" rx="2" fill="rgba(12,242,180,0.05)"/><text x="56" y="108" fill="rgba(12,242,180,0.3)" font-size="6" font-family="monospace">alt: "Mountain landscape at dusk"</text><line x1="195" y1="75" x2="220" y2="75" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><rect x="222" y="40" width="138" height="70" rx="5" fill="#111520" stroke="rgba(59,142,248,0.2)" stroke-width="1"/><rect x="230" y="50" width="30" height="7" rx="2" fill="rgba(59,142,248,0.3)"/><rect x="268" y="50" width="80" height="7" rx="2" fill="rgba(255,255,255,0.06)"/><rect x="230" y="64" width="120" height="4" rx="2" fill="rgba(255,255,255,0.06)"/><rect x="230" y="74" width="100" height="4" rx="2" fill="rgba(255,255,255,0.06)"/><rect x="230" y="84" width="110" height="4" rx="2" fill="rgba(255,255,255,0.06)"/><circle cx="348" cy="30" r="8" fill="rgba(59,142,248,0.1)" stroke="rgba(59,142,248,0.3)" stroke-width="1"/><text x="344" y="33" fill="rgba(59,142,248,0.7)" font-size="8" font-family="monospace">AI</text></svg>`,
-   title:'How AI Generates Alt Text for Complex PDF Images — And Where It Still Struggles',
-   excerpt:'Vision models have gotten remarkably good at describing images, but charts and scanned diagrams still challenge them. An honest look.',
-   body:`<p>Vision AI has transformed automated alt text generation. Models like Claude can produce descriptions capturing semantic meaning and functional purpose. For photos, logos, and simple diagrams, the quality is remarkably good.</p><h2>Where vision models excel</h2><p>For most images in typical business and government PDFs — org charts, people photos, maps, simple infographics — modern vision models generate alt text meeting WCAG 2.1 AA requirements.</p><h2>Where it still struggles</h2><p>Complex visualizations remain challenging: multi-series charts where color is the only differentiator, architectural diagrams with dozens of labeled components, and scanned hand-drawn maps.</p><div class="callout">📊 In internal testing, vision models produce acceptable alt text for ~87% of PDF images without human review. The remaining 13% are complex charts, technical diagrams, and scanned drawings.</div>`
-  },
-  {tag:'Standards',date:'Jan 28, 2026',read:'12 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><circle cx="155" cy="75" r="55" fill="rgba(242,169,59,0.05)" stroke="rgba(242,169,59,0.2)" stroke-width="1.5"/><circle cx="200" cy="75" r="55" fill="rgba(12,242,180,0.05)" stroke="rgba(12,242,180,0.2)" stroke-width="1.5"/><circle cx="245" cy="75" r="55" fill="rgba(59,142,248,0.05)" stroke="rgba(59,142,248,0.2)" stroke-width="1.5"/><text x="115" y="55" fill="rgba(242,169,59,0.5)" font-size="7" font-family="monospace" text-anchor="middle">508</text><text x="200" y="40" fill="rgba(12,242,180,0.5)" font-size="7" font-family="monospace" text-anchor="middle">WCAG</text><text x="287" y="55" fill="rgba(59,142,248,0.5)" font-size="7" font-family="monospace" text-anchor="middle">PDF/UA</text><text x="200" y="78" fill="rgba(255,255,255,0.2)" font-size="6" font-family="monospace" text-anchor="middle">compliant</text></svg>`,
-   title:'Section 508 vs WCAG 2.1 AA vs PDF/UA: A Clear Guide to What Each Standard Requires',
-   excerpt:'Three standards, overlapping requirements, and plenty of confusion about which apply to whom. The clearest breakdown we could write.',
-   body:`<p>Three standards, substantial overlap, and plenty of confusion. Here\'s the clearest possible breakdown.</p><h2>WCAG 2.1 AA</h2><p>The foundational standard. 50 success criteria across four principles. For PDFs: text alternatives (1.1.1), reading order (1.3.2), language of page (3.1.1), and parsing (4.1.1). Referenced by Section 508 and the ADA Title II rule.</p><h2>Section 508</h2><p>Requires federal agencies\' technology to be accessible. Refreshed in 2018 to incorporate WCAG 2.0 AA by reference. Meeting WCAG 2.1 AA means meeting Section 508.</p><h2>PDF/UA (ISO 14289-1)</h2><p>The only standard specifically designed for PDF accessibility. Defines requirements at the file format level: tagged content, logical structure, natural language specification, and accessibility metadata.</p><div class="callout">✅ Practical recommendation: target PDF/UA-1 as your output standard. Passing it essentially satisfies WCAG 2.1 AA and Section 508 requirements for PDF documents.</div>`
-  },
-  {tag:'Legal',date:'Jan 14, 2026',read:'9 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><rect x="60" y="120" width="280" height="4" rx="2" fill="rgba(242,169,59,0.2)"/><rect x="80" y="40" width="16" height="80" rx="2" fill="rgba(242,169,59,0.08)" stroke="rgba(242,169,59,0.15)" stroke-width="1"/><rect x="110" y="40" width="16" height="80" rx="2" fill="rgba(242,169,59,0.08)" stroke="rgba(242,169,59,0.15)" stroke-width="1"/><rect x="140" y="40" width="16" height="80" rx="2" fill="rgba(242,169,59,0.08)" stroke="rgba(242,169,59,0.15)" stroke-width="1"/><rect x="170" y="40" width="16" height="80" rx="2" fill="rgba(242,169,59,0.08)" stroke="rgba(242,169,59,0.15)" stroke-width="1"/><rect x="200" y="40" width="16" height="80" rx="2" fill="rgba(242,169,59,0.08)" stroke="rgba(242,169,59,0.15)" stroke-width="1"/><rect x="230" y="40" width="16" height="80" rx="2" fill="rgba(242,169,59,0.08)" stroke="rgba(242,169,59,0.15)" stroke-width="1"/><rect x="260" y="40" width="16" height="80" rx="2" fill="rgba(242,169,59,0.08)" stroke="rgba(242,169,59,0.15)" stroke-width="1"/><rect x="290" y="40" width="16" height="80" rx="2" fill="rgba(242,169,59,0.08)" stroke="rgba(242,169,59,0.15)" stroke-width="1"/><rect x="65" y="30" width="270" height="14" rx="3" fill="rgba(242,169,59,0.1)" stroke="rgba(242,169,59,0.2)" stroke-width="1"/><rect x="150" y="14" width="100" height="18" rx="3" fill="rgba(242,169,59,0.07)" stroke="rgba(242,169,59,0.15)" stroke-width="1"/><text x="200" y="26" fill="rgba(242,169,59,0.3)" font-size="7" font-family="monospace" text-anchor="middle">U.S. COURT</text></svg>`,
-   title:'The Most Common Accessibility Lawsuit Triggers in 2025 — And How to Avoid Them',
-   excerpt:'Inaccessible PDFs are the #1 cited violation in ADA web accessibility complaints. We analyzed 500+ cases to identify the patterns.',
-   body:`<p>ADA web accessibility litigation has grown every year since 2017. In 2024, over 4,200 federal lawsuits were filed — the highest on record. Plaintiffs\' firms use automated scanning tools to find violations and file demand letters at scale.</p><h2>Why PDFs are the #1 target</h2><p>PDFs are everywhere and almost universally inaccessible. Inaccessible PDFs are straightforward to identify programmatically — download, validate, capture errors. Most cited violations: missing alt text (78%), untagged documents (71%), missing document language (54%), inaccessible forms (49%), incorrect reading order (38%).</p><div class="callout">🛡️ The best defense is documented remediation. A paper trail showing systematic action and conformance is often enough to resolve complaints before litigation.</div>`
-  },
-  {tag:'Workflow',date:'Jan 6, 2026',read:'11 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><rect x="30" y="60" width="70" height="30" rx="5" fill="#111520" stroke="rgba(242,169,59,0.3)" stroke-width="1"/><text x="65" y="79" fill="rgba(242,169,59,0.6)" font-size="8" font-family="monospace" text-anchor="middle">SOURCE</text><line x1="100" y1="75" x2="130" y2="75" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/><polygon points="127,70 137,75 127,80" fill="rgba(255,255,255,0.2)"/><rect x="137" y="60" width="70" height="30" rx="5" fill="#111520" stroke="rgba(12,242,180,0.3)" stroke-width="1"/><text x="172" y="79" fill="rgba(12,242,180,0.6)" font-size="8" font-family="monospace" text-anchor="middle">ANALYZE</text><line x1="207" y1="75" x2="237" y2="75" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/><polygon points="234,70 244,75 234,80" fill="rgba(255,255,255,0.2)"/><rect x="244" y="60" width="70" height="30" rx="5" fill="#111520" stroke="rgba(12,242,180,0.3)" stroke-width="1"/><text x="279" y="79" fill="rgba(12,242,180,0.6)" font-size="8" font-family="monospace" text-anchor="middle">REMEDIATE</text><line x1="314" y1="75" x2="344" y2="75" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/><polygon points="341,70 351,75 341,80" fill="rgba(255,255,255,0.2)"/><rect x="351" y="60" width="20" height="30" rx="5" fill="#111520" stroke="rgba(59,142,248,0.35)" stroke-width="1"/><text x="361" y="79" fill="rgba(59,142,248,0.6)" font-size="8" font-family="monospace" text-anchor="middle">✓</text><rect x="30" y="110" width="340" height="3" rx="1.5" fill="rgba(255,255,255,0.04)"/><rect x="30" y="110" width="230" height="3" rx="1.5" fill="rgba(12,242,180,0.3)"/><text x="30" y="130" fill="rgba(255,255,255,0.15)" font-size="7" font-family="monospace">67% complete</text></svg>`,
-   title:'Building an Accessible Document Pipeline: How to Remediate at Scale Without Hiring an Army',
-   excerpt:'Manual remediation doesn\'t scale. A practical framework for building an automated pipeline your team can maintain with minimal effort.',
-   body:`<p>At $5–15 per page, a 10,000-page backlog costs $50,000–$150,000. And that\'s before accounting for new documents published every week.</p><h2>The three-layer approach</h2><p><strong>Layer 1 — Source prevention.</strong> Fix the problem before the PDF is created. Accessibility settings in Word or InDesign can ensure tagged output from the start.</p><p><strong>Layer 2 — Automated remediation.</strong> For scanned, external, or legacy files, automated remediation handles the bulk. Hundreds of pages per minute at near-zero marginal cost.</p><p><strong>Layer 3 — Human QA queue.</strong> High-stakes documents get routed to accessibility specialists who verify AI-generated alt text and reading order. Typically 5–15% of total volume.</p><div class="callout">🔧 Typical timeline: 1–3 days for API integration, 1–2 weeks for pipeline testing, under a month for full rollout.</div>`
-  },
-  {tag:'Technical',date:'Dec 18, 2025',read:'7 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><rect x="165" y="15" width="70" height="22" rx="4" fill="#111520" stroke="rgba(12,242,180,0.4)" stroke-width="1"/><text x="200" y="30" fill="rgba(12,242,180,0.7)" font-size="8" font-family="monospace" text-anchor="middle">&lt;Document&gt;</text><line x1="200" y1="37" x2="200" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><line x1="90" y1="50" x2="310" y2="50" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><line x1="90" y1="50" x2="90" y2="60" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><line x1="200" y1="50" x2="200" y2="60" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><line x1="310" y1="50" x2="310" y2="60" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><rect x="55" y="60" width="70" height="20" rx="3" fill="#111520" stroke="rgba(242,169,59,0.3)" stroke-width="1"/><text x="90" y="74" fill="rgba(242,169,59,0.6)" font-size="8" font-family="monospace" text-anchor="middle">&lt;H1&gt;</text><rect x="165" y="60" width="70" height="20" rx="3" fill="#111520" stroke="rgba(12,242,180,0.3)" stroke-width="1"/><text x="200" y="74" fill="rgba(12,242,180,0.6)" font-size="8" font-family="monospace" text-anchor="middle">&lt;P&gt;</text><rect x="275" y="60" width="70" height="20" rx="3" fill="#111520" stroke="rgba(59,142,248,0.3)" stroke-width="1"/><text x="310" y="74" fill="rgba(59,142,248,0.6)" font-size="8" font-family="monospace" text-anchor="middle">&lt;Figure&gt;</text><line x1="90" y1="80" x2="90" y2="95" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><line x1="200" y1="80" x2="200" y2="95" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><line x1="310" y1="80" x2="310" y2="95" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><rect x="60" y="95" width="60" height="16" rx="3" fill="#111520" stroke="rgba(242,169,59,0.15)" stroke-width="1"/><text x="90" y="107" fill="rgba(242,169,59,0.35)" font-size="7" font-family="monospace" text-anchor="middle">&lt;H2&gt;</text><rect x="170" y="95" width="60" height="16" rx="3" fill="#111520" stroke="rgba(12,242,180,0.15)" stroke-width="1"/><text x="200" y="107" fill="rgba(12,242,180,0.35)" font-size="7" font-family="monospace" text-anchor="middle">&lt;Span&gt;</text><rect x="280" y="95" width="60" height="16" rx="3" fill="#111520" stroke="rgba(59,142,248,0.15)" stroke-width="1"/><text x="310" y="107" fill="rgba(59,142,248,0.35)" font-size="7" font-family="monospace" text-anchor="middle">/Alt</text></svg>`,
-   title:'A Complete Guide to PDF Tag Trees: What They Are and Why They Matter',
-   excerpt:'The tag tree is the backbone of an accessible PDF. Most developers have never seen one. Here\'s what it looks like and how to fix a broken one.',
-   body:`<p>The tag tree is a hierarchical structure embedded in a PDF that describes the document\'s logical organization to assistive technology. Without it, a screen reader sees a flat stream of characters — no headings, no paragraphs, no tables, no lists.</p><h2>Tag tree anatomy</h2><p>At the root is a <code>Document</code> tag. Inside: <code>H1</code>–<code>H6</code> for headings, <code>P</code> for paragraphs, <code>Table</code>/<code>TR</code>/<code>TH</code>/<code>TD</code> for data tables, <code>L</code>/<code>LI</code> for lists, and <code>Figure</code> with an <code>/Alt</code> attribute for images.</p><h2>Common failures</h2><p>Missing tags entirely (created by scanning without OCR), broken heading hierarchy (H3 following H1 with no H2), table cells without scope attributes, and figures with empty alt text like "image".</p><div class="callout">🔍 To inspect a tag tree: open in Adobe Acrobat → View → Navigation Panels → Tags. What you see — or don\'t see — tells the whole accessibility story.</div>`
-  },
-  {tag:'Compliance',date:'Dec 9, 2025',read:'8 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><polygon points="200,20 310,60 90,60" fill="rgba(242,169,59,0.06)" stroke="rgba(242,169,59,0.2)" stroke-width="1"/><rect x="110" y="60" width="180" height="65" rx="2" fill="rgba(242,169,59,0.04)" stroke="rgba(242,169,59,0.12)" stroke-width="1"/><rect x="125" y="75" width="25" height="50" rx="2" fill="#111520" stroke="rgba(255,255,255,0.08)" stroke-width="1"/><rect x="163" y="75" width="25" height="50" rx="2" fill="#111520" stroke="rgba(255,255,255,0.08)" stroke-width="1"/><rect x="213" y="75" width="25" height="50" rx="2" fill="#111520" stroke="rgba(255,255,255,0.08)" stroke-width="1"/><rect x="251" y="75" width="25" height="50" rx="2" fill="#111520" stroke="rgba(255,255,255,0.08)" stroke-width="1"/><rect x="170" y="95" width="60" height="30" rx="2" fill="#111520" stroke="rgba(242,169,59,0.2)" stroke-width="1"/><rect x="100" y="120" width="200" height="5" rx="2" fill="rgba(242,169,59,0.15)"/><text x="200" y="118" fill="rgba(242,169,59,0.3)" font-size="7" font-family="monospace" text-anchor="middle">MAIN ENTRANCE</text><circle cx="342" cy="35" r="16" fill="rgba(242,169,59,0.07)" stroke="rgba(242,169,59,0.2)" stroke-width="1"/><rect x="332" y="33" width="20" height="4" rx="2" fill="rgba(242,169,59,0.4)"/><line x1="342" y1="37" x2="342" y2="47" stroke="rgba(242,169,59,0.3)" stroke-width="1.5"/></svg>`,
-   title:'WCAG 2.1 AA for Universities: What Higher Education Must Do Before the 2027 Deadline',
-   excerpt:'Public universities are subject to both Title II ADA and Section 504 of the Rehabilitation Act. The 2027 deadline is closer than most accessibility teams realize.',
-   body:`<p>Higher education institutions are subject to Title II of the ADA as public entities, Section 504 as recipients of federal funding, and increasingly state-level accessibility mandates. The 2027 deadline applies to most institutions with under 50,000 enrolled students.</p><h2>The scale of the problem on campus</h2><p>A mid-sized university typically has 100,000+ publicly accessible documents across faculty pages, department sites, library archives, and administrative portals. Course syllabi, research papers, financial aid forms — nearly all are PDFs, and nearly none are accessible.</p><h2>Where to prioritize</h2><p>Admissions materials and financial aid forms first, then course materials in active use, then administrative and archival documents.</p><div class="callout">📋 Document your compliance journey. A written accessibility plan with evidence of systematic progress provides meaningful legal protection.</div>`
-  },
-  {tag:'AI & Accessibility',date:'Nov 25, 2025',read:'9 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><circle cx="60" cy="50" r="6" fill="rgba(12,242,180,0.15)" stroke="rgba(12,242,180,0.4)" stroke-width="1"/><circle cx="60" cy="75" r="6" fill="rgba(12,242,180,0.15)" stroke="rgba(12,242,180,0.4)" stroke-width="1"/><circle cx="60" cy="100" r="6" fill="rgba(12,242,180,0.15)" stroke="rgba(12,242,180,0.4)" stroke-width="1"/><circle cx="155" cy="40" r="6" fill="rgba(12,242,180,0.2)" stroke="rgba(12,242,180,0.5)" stroke-width="1"/><circle cx="155" cy="65" r="6" fill="rgba(12,242,180,0.2)" stroke="rgba(12,242,180,0.5)" stroke-width="1"/><circle cx="155" cy="90" r="6" fill="rgba(12,242,180,0.2)" stroke="rgba(12,242,180,0.5)" stroke-width="1"/><circle cx="155" cy="110" r="6" fill="rgba(12,242,180,0.2)" stroke="rgba(12,242,180,0.5)" stroke-width="1"/><circle cx="250" cy="50" r="6" fill="rgba(59,142,248,0.2)" stroke="rgba(59,142,248,0.5)" stroke-width="1"/><circle cx="250" cy="75" r="6" fill="rgba(59,142,248,0.2)" stroke="rgba(59,142,248,0.5)" stroke-width="1"/><circle cx="250" cy="100" r="6" fill="rgba(59,142,248,0.2)" stroke="rgba(59,142,248,0.5)" stroke-width="1"/><circle cx="345" cy="62" r="8" fill="rgba(59,142,248,0.15)" stroke="rgba(59,142,248,0.4)" stroke-width="1.5"/><circle cx="345" cy="88" r="8" fill="rgba(59,142,248,0.15)" stroke="rgba(59,142,248,0.4)" stroke-width="1.5"/><line x1="66" y1="50" x2="149" y2="40" stroke="rgba(12,242,180,0.1)" stroke-width="1"/><line x1="66" y1="50" x2="149" y2="65" stroke="rgba(12,242,180,0.1)" stroke-width="1"/><line x1="66" y1="75" x2="149" y2="40" stroke="rgba(12,242,180,0.1)" stroke-width="1"/><line x1="66" y1="75" x2="149" y2="65" stroke="rgba(12,242,180,0.1)" stroke-width="1"/><line x1="66" y1="75" x2="149" y2="90" stroke="rgba(12,242,180,0.1)" stroke-width="1"/><line x1="66" y1="100" x2="149" y2="90" stroke="rgba(12,242,180,0.1)" stroke-width="1"/><line x1="66" y1="100" x2="149" y2="110" stroke="rgba(12,242,180,0.1)" stroke-width="1"/><line x1="161" y1="40" x2="244" y2="50" stroke="rgba(59,142,248,0.1)" stroke-width="1"/><line x1="161" y1="65" x2="244" y2="50" stroke="rgba(59,142,248,0.1)" stroke-width="1"/><line x1="161" y1="65" x2="244" y2="75" stroke="rgba(59,142,248,0.1)" stroke-width="1"/><line x1="161" y1="90" x2="244" y2="75" stroke="rgba(59,142,248,0.1)" stroke-width="1"/><line x1="161" y1="90" x2="244" y2="100" stroke="rgba(59,142,248,0.1)" stroke-width="1"/><line x1="161" y1="110" x2="244" y2="100" stroke="rgba(59,142,248,0.1)" stroke-width="1"/><line x1="256" y1="50" x2="337" y2="62" stroke="rgba(59,142,248,0.15)" stroke-width="1"/><line x1="256" y1="75" x2="337" y2="62" stroke="rgba(59,142,248,0.15)" stroke-width="1"/><line x1="256" y1="75" x2="337" y2="88" stroke="rgba(59,142,248,0.15)" stroke-width="1"/><line x1="256" y1="100" x2="337" y2="88" stroke="rgba(59,142,248,0.15)" stroke-width="1"/></svg>`,
-   title:'Using LLMs for Document Accessibility: Beyond Alt Text',
-   excerpt:'Large language models can do far more than generate alt text. A look at how AI is being applied across the full PDF accessibility pipeline.',
-   body:`<p>Most conversations about AI and PDF accessibility focus on one use case: generating alt text for images. That\'s valuable, but a small slice of what LLMs can contribute to accessible document workflows.</p><h2>Reading order inference</h2><p>Multi-column layouts, sidebars, and callout boxes create ambiguous reading order that spatial analysis alone can\'t resolve. LLMs can evaluate candidate sequences and select the one that reads most naturally.</p><h2>Link text generation</h2><p>"Click here," "learn more," and bare URLs are WCAG failures (Success Criterion 2.4.4). An LLM can infer meaningful link text from surrounding paragraph context with high accuracy.</p><h2>Heading hierarchy inference</h2><p>PDFs from print-layout tools often have no semantic heading structure — only visual size and weight cues. LLMs can propose a semantically correct H1–H6 hierarchy based on topic structure, not just font size.</p><div class="callout">🤖 The trend: AI is moving from single-point alt text generation to an end-to-end accessibility intelligence layer that understands document intent, not just structure.</div>`
-  },
-  {tag:'Legal',date:'Nov 11, 2025',read:'6 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><rect x="110" y="15" width="180" height="120" rx="6" fill="#111520" stroke="rgba(242,92,92,0.2)" stroke-width="1"/><rect x="125" y="35" width="100" height="8" rx="3" fill="rgba(242,92,92,0.35)"/><rect x="125" y="50" width="150" height="4" rx="2" fill="rgba(255,255,255,0.07)"/><rect x="125" y="60" width="140" height="4" rx="2" fill="rgba(255,255,255,0.07)"/><rect x="125" y="70" width="150" height="4" rx="2" fill="rgba(255,255,255,0.07)"/><rect x="125" y="80" width="130" height="4" rx="2" fill="rgba(255,255,255,0.07)"/><rect x="125" y="90" width="145" height="4" rx="2" fill="rgba(255,255,255,0.07)"/><circle cx="200" cy="118" r="14" fill="none" stroke="rgba(242,92,92,0.25)" stroke-width="1.5"/><circle cx="200" cy="118" r="9" fill="none" stroke="rgba(242,92,92,0.15)" stroke-width="1"/><text x="200" y="122" fill="rgba(242,92,92,0.4)" font-size="7" font-family="monospace" text-anchor="middle">DOJ</text><text x="125" y="31" fill="rgba(242,92,92,0.3)" font-size="7" font-family="monospace">28 CFR PART 35</text></svg>`,
-   title:'What the DOJ\'s 28 CFR Part 35 Actually Says About PDFs',
-   excerpt:'The 2024 DOJ rule update is the most substantive change to ADA web accessibility requirements in a decade. Here\'s what it says, in plain English.',
-   body:`<p>The DOJ published its final rule updating 28 CFR Part 35 in April 2024, establishing WCAG 2.1 AA as the binding technical standard for state and local government digital accessibility.</p><h2>What it covers</h2><p>The rule covers "web content" and "mobile apps" — which the DOJ explicitly interprets to include PDFs and other digital documents made available through websites or apps. There is no carve-out for legacy content.</p><h2>The undue burden exception</h2><p>A public entity doesn\'t have to comply if doing so would impose a fundamental alteration or undue financial burden. But this requires formal documentation — a written determination by a senior official — and alternative accessible formats must still be provided.</p><div class="callout">⚖️ The undue burden exception is real but narrow. It doesn\'t excuse inaction. It requires documentation, good faith effort, and alternative accessible formats for anyone who requests them.</div>`
-  },
-  {tag:'Workflow',date:'Oct 29, 2025',read:'10 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><text x="30" y="60" fill="rgba(59,142,248,0.4)" font-size="28" font-family="monospace">&lt;/&gt;</text><rect x="110" y="30" width="180" height="90" rx="6" fill="#111520" stroke="rgba(59,142,248,0.2)" stroke-width="1"/><rect x="110" y="30" width="180" height="20" rx="6" fill="rgba(59,142,248,0.07)" stroke="rgba(59,142,248,0.15)" stroke-width="0"/><rect x="115" y="36" width="8" height="8" rx="2" fill="rgba(242,92,92,0.4)"/><rect x="127" y="36" width="8" height="8" rx="2" fill="rgba(242,169,59,0.4)"/><rect x="139" y="36" width="8" height="8" rx="2" fill="rgba(12,242,180,0.4)"/><text x="165" y="44" fill="rgba(255,255,255,0.2)" font-size="7" font-family="monospace">CMS Upload Hook</text><text x="120" y="70" fill="rgba(59,142,248,0.5)" font-size="8" font-family="monospace">add_filter(</text><text x="130" y="82" fill="rgba(12,242,180,0.4)" font-size="8" font-family="monospace">'wp_handle_upload',</text><text x="130" y="94" fill="rgba(255,255,255,0.25)" font-size="8" font-family="monospace">$remediate_fn</text><text x="120" y="106" fill="rgba(59,142,248,0.5)" font-size="8" font-family="monospace">);</text><circle cx="340" cy="75" r="22" fill="rgba(59,142,248,0.05)" stroke="rgba(59,142,248,0.2)" stroke-width="1.5"/><circle cx="340" cy="75" r="12" fill="rgba(59,142,248,0.08)" stroke="rgba(59,142,248,0.15)" stroke-width="1"/><circle cx="340" cy="75" r="4" fill="rgba(59,142,248,0.3)"/><line x1="340" y1="49" x2="340" y2="57" stroke="rgba(59,142,248,0.3)" stroke-width="2"/><line x1="340" y1="93" x2="340" y2="101" stroke="rgba(59,142,248,0.3)" stroke-width="2"/><line x1="314" y1="75" x2="322" y2="75" stroke="rgba(59,142,248,0.3)" stroke-width="2"/><line x1="358" y1="75" x2="366" y2="75" stroke="rgba(59,142,248,0.3)" stroke-width="2"/></svg>`,
-   title:'Integrating PDF Remediation Into Your CMS: A Developer\'s Guide',
-   excerpt:'How to wire an automated remediation API into WordPress, Drupal, SharePoint, and custom CMS platforms so every published PDF is accessible by default.',
-   body:`<p>The most effective accessibility programs build remediation into the publishing workflow, so accessible output is the default — not an afterthought.</p><h2>The general architecture</h2><p>Intercept the document at upload time, route it through the remediation API, and store the remediated version. The original file is replaced before it ever becomes publicly accessible.</p><h2>WordPress implementation</h2><p>Use the <code>add_filter(\'wp_handle_upload\', ...)</code> hook to intercept PDF uploads. POST the file to the RemeDocs API endpoint, await the async response via webhook, then update the attachment record with the remediated file URL.</p><h2>Drupal implementation</h2><p>The <code>hook_file_presave()</code> hook fires after validation but before the file record is committed — the ideal insertion point to swap in the remediated version transparently.</p><div class="callout">🔧 Estimated integration effort: 4–8 hours for a standard CMS, 1–2 days for a custom system with non-standard document management.</div>`
-  },
-  {tag:'Standards',date:'Oct 14, 2025',read:'7 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><circle cx="200" cy="75" r="60" fill="none" stroke="rgba(59,142,248,0.15)" stroke-width="1"/><ellipse cx="200" cy="75" rx="35" ry="60" fill="none" stroke="rgba(59,142,248,0.1)" stroke-width="1"/><ellipse cx="200" cy="75" rx="60" ry="20" fill="none" stroke="rgba(59,142,248,0.1)" stroke-width="1"/><ellipse cx="200" cy="75" rx="60" ry="40" fill="none" stroke="rgba(59,142,248,0.08)" stroke-width="1"/><line x1="140" y1="75" x2="260" y2="75" stroke="rgba(59,142,248,0.1)" stroke-width="1"/><line x1="200" y1="15" x2="200" y2="135" stroke="rgba(59,142,248,0.1)" stroke-width="1"/><circle cx="200" cy="75" r="4" fill="rgba(59,142,248,0.5)"/><text x="160" y="40" fill="rgba(59,142,248,0.35)" font-size="8" font-family="monospace">EU</text><text x="218" y="40" fill="rgba(12,242,180,0.35)" font-size="8" font-family="monospace">UK</text><text x="140" y="80" fill="rgba(242,169,59,0.35)" font-size="8" font-family="monospace">US</text></svg>`,
-   title:'EN 301 549: The European Accessibility Standard Every Global Company Needs to Know',
-   excerpt:'If you operate in the EU or work with European government clients, EN 301 549 applies to your PDFs. Here\'s what it requires.',
-   body:`<p>EN 301 549 is the European harmonized standard for ICT accessibility, and since 2018 it has been a legal requirement for public sector websites and apps across all EU member states under the Web Accessibility Directive.</p><h2>How it relates to WCAG</h2><p>EN 301 549 incorporates WCAG 2.1 Level AA by reference for web content. Meeting WCAG 2.1 AA means meeting the web content provisions of EN 301 549. For PDFs, WCAG 2.1 AA compliance is the operative requirement.</p><h2>Key differences from US standards</h2><p>The EU standard has stronger documentation requirements. Public sector organizations must publish accessibility statements that specifically address compliance status, known barriers, and remediation plans.</p><div class="callout">🌍 A single WCAG 2.1 AA + PDF/UA remediation standard satisfies US (Section 508, ADA), EU (EN 301 549), and UK (Public Sector Bodies Accessibility Regulations) requirements simultaneously.</div>`
-  },
-  {tag:'Technical',date:'Sep 30, 2025',read:'13 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><rect x="50" y="25" width="300" height="100" rx="5" fill="#111520" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><rect x="50" y="25" width="300" height="25" rx="4" fill="rgba(59,142,248,0.08)" stroke="rgba(59,142,248,0.0)" stroke-width="0"/><line x1="50" y1="50" x2="350" y2="50" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><line x1="50" y1="72" x2="350" y2="72" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><line x1="50" y1="94" x2="350" y2="94" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><line x1="50" y1="116" x2="350" y2="116" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><line x1="125" y1="25" x2="125" y2="125" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><line x1="200" y1="25" x2="200" y2="125" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><line x1="275" y1="25" x2="275" y2="125" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><text x="87" y="42" fill="rgba(59,142,248,0.6)" font-size="8" font-family="monospace" text-anchor="middle">TH scope=col</text><text x="162" y="42" fill="rgba(59,142,248,0.6)" font-size="8" font-family="monospace" text-anchor="middle">TH scope=col</text><text x="237" y="42" fill="rgba(59,142,248,0.6)" font-size="8" font-family="monospace" text-anchor="middle">TH scope=col</text><text x="312" y="42" fill="rgba(59,142,248,0.6)" font-size="8" font-family="monospace" text-anchor="middle">TH scope=col</text><text x="87" y="64" fill="rgba(255,255,255,0.2)" font-size="8" font-family="monospace" text-anchor="middle">TD</text><text x="162" y="64" fill="rgba(255,255,255,0.2)" font-size="8" font-family="monospace" text-anchor="middle">TD</text><text x="237" y="64" fill="rgba(255,255,255,0.2)" font-size="8" font-family="monospace" text-anchor="middle">TD</text><rect x="267" y="51" width="72" height="21" fill="rgba(12,242,180,0.05)" stroke="rgba(12,242,180,0.2)" stroke-width="1"/><text x="312" y="64" fill="rgba(12,242,180,0.5)" font-size="8" font-family="monospace" text-anchor="middle">TD</text></svg>`,
-   title:'Accessible Tables in PDFs: The Complete Technical Guide',
-   excerpt:'Tables are the hardest element to get right in PDF accessibility. Here\'s everything you need to know about TH, TD, scope, headers/ids, and summary attributes.',
-   body:`<p>Tables are the single most common source of PDF accessibility failures. The PDF specification\'s table model is detailed enough that getting it fully right requires careful implementation.</p><h2>The basic structure</h2><p>A compliant PDF table needs: a <code>Table</code> tag containing <code>TR</code> (table row) tags, which contain <code>TH</code> (table header) or <code>TD</code> (table data) cells. Header cells need a <code>/Scope</code> attribute set to "Column", "Row", or "Both". Without scope, a screen reader can\'t associate headers with data cells.</p><h2>Complex tables: headers/ids</h2><p>When a table has multi-level headers, irregular spans, or merged cells, scope attributes alone aren\'t sufficient. Explicit <code>/Headers</code> and <code>/ID</code> attributes create a direct association between each data cell and its header cells.</p><div class="callout">📊 In analysis of 10,000 PDFs, tables were the element most likely to have accessibility errors even in documents that otherwise passed basic checks. Complex tables with merged headers failed at an 89% rate.</div>`
-  },
-  {tag:'Compliance',date:'Sep 15, 2025',read:'8 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><polyline points="20,75 60,75 75,40 90,110 105,60 120,90 140,75 380,75" fill="none" stroke="rgba(242,92,92,0.4)" stroke-width="2"/><circle cx="75" cy="40" r="3" fill="rgba(242,92,92,0.6)"/><circle cx="90" cy="110" r="3" fill="rgba(242,92,92,0.6)"/><circle cx="105" cy="60" r="3" fill="rgba(242,92,92,0.6)"/><rect x="230" y="25" width="130" height="100" rx="5" fill="rgba(242,92,92,0.04)" stroke="rgba(242,92,92,0.15)" stroke-width="1"/><rect x="245" y="38" width="80" height="6" rx="2" fill="rgba(242,92,92,0.3)"/><rect x="245" y="52" width="100" height="4" rx="2" fill="rgba(255,255,255,0.06)"/><rect x="245" y="62" width="90" height="4" rx="2" fill="rgba(255,255,255,0.06)"/><rect x="245" y="72" width="95" height="4" rx="2" fill="rgba(255,255,255,0.06)"/><line x1="273" y1="95" x2="297" y2="95" stroke="rgba(242,92,92,0.4)" stroke-width="2"/><line x1="285" y1="83" x2="285" y2="107" stroke="rgba(242,92,92,0.4)" stroke-width="2"/></svg>`,
-   title:'Healthcare PDF Accessibility: HIPAA Doesn\'t Exempt You from the ADA',
-   excerpt:'Healthcare organizations often assume privacy requirements override accessibility obligations. They don\'t. Here\'s what healthcare PDF compliance actually requires.',
-   body:`<p>A common misconception: HIPAA compliance and ADA compliance conflict, and HIPAA wins. In practice, these frameworks rarely conflict for PDFs, and healthcare organizations are as subject to ADA web accessibility requirements as any other industry.</p><h2>What healthcare PDFs need to be accessible</h2><p>Patient-facing documents — consent forms, discharge instructions, medication guides, appointment reminders, insurance EOBs — are all subject to ADA accessibility requirements. These are not private health records; they\'re operational communications provided to patients through public or semi-public portals.</p><h2>The intersection with Section 1557</h2><p>Section 1557 of the ACA prohibits discrimination by health programs receiving federal financial assistance. The HHS rule implementing it includes electronic accessibility requirements requiring WCAG 2.1 AA compliance for covered entities\' patient-facing digital content — including PDFs.</p><div class="callout">🏥 Healthcare organizations were involved in 31% of all ADA digital accessibility lawsuits filed in 2024 — up from 12% in 2021. Patient portals and downloadable forms are the most frequently cited violations.</div>`
-  },
-  {tag:'AI & Accessibility',date:'Aug 28, 2025',read:'8 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><line x1="55" y1="20" x2="55" y2="120" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><line x1="55" y1="120" x2="370" y2="120" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><rect x="70" y="28" width="40" height="92" rx="3" fill="rgba(242,92,92,0.15)" stroke="rgba(242,92,92,0.2)" stroke-width="1"/><text x="90" y="24" fill="rgba(242,92,92,0.4)" font-size="7" font-family="monospace" text-anchor="middle">38%</text><rect x="125" y="55" width="40" height="65" rx="3" fill="rgba(242,169,59,0.15)" stroke="rgba(242,169,59,0.2)" stroke-width="1"/><text x="145" y="51" fill="rgba(242,169,59,0.4)" font-size="7" font-family="monospace" text-anchor="middle">57%</text><rect x="180" y="37" width="40" height="83" rx="3" fill="rgba(59,142,248,0.15)" stroke="rgba(59,142,248,0.2)" stroke-width="1"/><text x="200" y="33" fill="rgba(59,142,248,0.4)" font-size="7" font-family="monospace" text-anchor="middle">45%</text><rect x="235" y="22" width="40" height="98" rx="3" fill="rgba(12,242,180,0.2)" stroke="rgba(12,242,180,0.3)" stroke-width="1"/><text x="255" y="18" fill="rgba(12,242,180,0.6)" font-size="7" font-family="monospace" text-anchor="middle">91%</text><rect x="290" y="15" width="40" height="105" rx="3" fill="rgba(12,242,180,0.3)" stroke="rgba(12,242,180,0.45)" stroke-width="1"/><text x="310" y="11" fill="rgba(12,242,180,0.8)" font-size="7" font-family="monospace" text-anchor="middle">97%</text><text x="90" y="133" fill="rgba(255,255,255,0.15)" font-size="6" font-family="monospace" text-anchor="middle">Manual</text><text x="145" y="133" fill="rgba(255,255,255,0.15)" font-size="6" font-family="monospace" text-anchor="middle">Overlay</text><text x="200" y="133" fill="rgba(255,255,255,0.15)" font-size="6" font-family="monospace" text-anchor="middle">Semi-auto</text><text x="255" y="133" fill="rgba(255,255,255,0.15)" font-size="6" font-family="monospace" text-anchor="middle">Auto AI</text><text x="310" y="133" fill="rgba(255,255,255,0.15)" font-size="6" font-family="monospace" text-anchor="middle">AI + Human</text></svg>`,
-   title:'Benchmarking PDF Accessibility Tools in 2025: What the Data Shows',
-   excerpt:'We ran 500 PDFs through every major remediation tool and scored the outputs. The results were surprising — and not always flattering to market leaders.',
-   body:`<p>We selected 500 PDFs representative of real-world government and enterprise document archives: scanned documents, native PDFs, multi-column layouts, forms, tables, and documents with complex graphics. We ran each through the major automated remediation approaches and scored outputs against PAC 2024 and NVDA screen reader tests.</p><h2>Key findings</h2><p>Full automated remediation achieved passing scores on 91% of native PDFs and 78% of scanned documents. Human-in-the-loop review pushed those to 97% and 94% respectively. HTML overlay tools scored 0% on PDF/UA compliance since the PDF file is never modified.</p><div class="callout">📈 The performance gap between automated and manual remediation has closed dramatically since 2022. For standard document types, automated tools now match or exceed manual remediation quality — in seconds rather than days.</div>`
-  },
-  {tag:'Workflow',date:'Aug 12, 2025',read:'6 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><rect x="60" y="60" width="110" height="80" rx="4" fill="#0e1219" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><rect x="50" y="50" width="110" height="80" rx="4" fill="#101420" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><rect x="40" y="40" width="110" height="80" rx="4" fill="#111520" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><rect x="52" y="52" width="60" height="5" rx="2" fill="rgba(255,255,255,0.15)"/><rect x="52" y="63" width="80" height="3" rx="1" fill="rgba(255,255,255,0.06)"/><rect x="52" y="72" width="72" height="3" rx="1" fill="rgba(255,255,255,0.06)"/><rect x="52" y="81" width="76" height="3" rx="1" fill="rgba(255,255,255,0.06)"/><text x="95" y="108" fill="rgba(255,255,255,0.1)" font-size="7" font-family="monospace" text-anchor="middle">40,000 PDFs</text><rect x="200" y="60" width="160" height="30" rx="5" fill="#111520" stroke="rgba(12,242,180,0.2)" stroke-width="1"/><rect x="200" y="60" width="148" height="30" rx="5" fill="rgba(12,242,180,0.12)"/><text x="280" y="79" fill="rgba(12,242,180,0.7)" font-size="8" font-family="monospace" text-anchor="middle">92.5% complete</text><rect x="200" y="100" width="160" height="15" rx="3" fill="#111520" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><text x="235" y="111" fill="rgba(12,242,180,0.4)" font-size="7" font-family="monospace">✓ 36,934 remediated</text></svg>`,
-   title:'Batch Remediating a Legacy Document Archive: Lessons from a 40,000-PDF Project',
-   excerpt:'A county government asked us to remediate 40,000 legacy PDFs in 90 days. Here\'s what we learned about processing at scale.',
-   body:`<p>When a county government came to us with 40,000 PDFs spanning 25 years of public records and a 90-day compliance deadline, we had to build a pipeline capable of handling document diversity at serious scale.</p><h2>Document classification first</h2><p>The first week was entirely classification: categorizing documents by type, complexity, and priority. Native PDFs vs. scanned, text-only vs. table-heavy vs. image-heavy, high-traffic vs. archival. This let us route each document to the right processing path.</p><h2>The automation ratio</h2><p>73% processed without human intervention. 19% required minor human correction — typically alt text review or reading order adjustment. 8% required substantial human review — mostly scanned documents with unusual formatting or handwritten content.</p><div class="callout">📦 Final outcome: 40,000 PDFs processed in 67 days. 94.3% passed PAC 2024 validation on first attempt. Total cost ~$0.18 per page — compared to $8–12 per page for manual remediation.</div>`
-  },
-  {tag:'Legal',date:'Jul 28, 2025',read:'7 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><rect x="30" y="20" width="220" height="110" rx="6" fill="#111520" stroke="rgba(255,255,255,0.07)" stroke-width="1"/><rect x="44" y="34" width="120" height="6" rx="2" fill="rgba(255,255,255,0.08)"/><rect x="44" y="46" width="150" height="4" rx="2" fill="rgba(255,255,255,0.05)"/><rect x="44" y="56" width="130" height="4" rx="2" fill="rgba(255,255,255,0.05)"/><rect x="44" y="66" width="145" height="4" rx="2" fill="rgba(255,255,255,0.05)"/><rect x="44" y="76" width="110" height="4" rx="2" fill="rgba(255,255,255,0.05)"/><rect x="44" y="86" width="140" height="4" rx="2" fill="rgba(255,255,255,0.05)"/><circle cx="280" cy="80" r="45" fill="none" stroke="rgba(242,169,59,0.25)" stroke-width="2"/><circle cx="280" cy="80" r="38" fill="rgba(242,169,59,0.04)" stroke="rgba(242,169,59,0.12)" stroke-width="1"/><line x1="314" y1="114" x2="345" y2="140" stroke="rgba(242,169,59,0.3)" stroke-width="3" stroke-linecap="round"/><rect x="248" y="68" width="64" height="4" rx="2" fill="rgba(242,92,92,0.4)"/><rect x="248" y="78" width="64" height="4" rx="2" fill="rgba(242,92,92,0.25)"/><rect x="248" y="88" width="40" height="4" rx="2" fill="rgba(242,92,92,0.15)"/><text x="280" y="58" fill="rgba(242,92,92,0.35)" font-size="7" font-family="monospace" text-anchor="middle">3 violations</text></svg>`,
-   title:'How Plaintiffs\' Firms Find Inaccessible PDFs — And How to Stay Off Their Radar',
-   excerpt:'The mechanics of automated accessibility litigation: how scanning works, what triggers demand letters, and what proactive compliance actually looks like.',
-   body:`<p>Understanding how accessibility litigation works in practice is the first step to avoiding it. The process is largely automated: law firms use tools like axe, WAVE, or custom scanners to crawl websites, flag violations, and generate demand letters at high volume.</p><h2>How PDF scanning works</h2><p>Automated scanners follow links on your website, download every linked PDF, and run each through accessibility validators. Tools like PAC 3 and VeraPDF can evaluate thousands of PDFs per hour. Missing tags, missing alt text, and missing document language are the easiest violations to detect programmatically.</p><h2>What makes you a target</h2><p>High-volume document publishers with no accessibility program are the primary targets. Healthcare, financial services, government, and education are overrepresented because they publish large numbers of PDFs that directly affect people\'s access to important services.</p><div class="callout">🔍 The most effective deterrent: having your own scanner find your violations before plaintiffs\' firms do. A documented remediation program — even one still in progress — dramatically reduces litigation risk.</div>`
-  },
-  {tag:'Standards',date:'Jul 10, 2025',read:'9 min',svg:`<svg viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="150" fill="#0C0F15"/><line x1="40" y1="75" x2="370" y2="75" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/><circle cx="80" cy="75" r="8" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/><text x="80" y="79" fill="rgba(255,255,255,0.4)" font-size="7" font-family="monospace" text-anchor="middle">2.0</text><text x="80" y="56" fill="rgba(255,255,255,0.2)" font-size="7" font-family="monospace" text-anchor="middle">2008</text><circle cx="165" cy="75" r="8" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/><text x="165" y="79" fill="rgba(255,255,255,0.4)" font-size="7" font-family="monospace" text-anchor="middle">2.1</text><text x="165" y="56" fill="rgba(255,255,255,0.2)" font-size="7" font-family="monospace" text-anchor="middle">2018</text><circle cx="250" cy="75" r="10" fill="rgba(12,242,180,0.15)" stroke="rgba(12,242,180,0.5)" stroke-width="2"/><text x="250" y="79" fill="rgba(12,242,180,0.8)" font-size="7" font-family="monospace" text-anchor="middle">2.2</text><text x="250" y="56" fill="rgba(12,242,180,0.4)" font-size="7" font-family="monospace" text-anchor="middle">NOW</text><text x="250" y="97" fill="rgba(12,242,180,0.3)" font-size="7" font-family="monospace" text-anchor="middle">required</text><circle cx="340" cy="75" r="10" fill="rgba(59,142,248,0.08)" stroke="rgba(59,142,248,0.25)" stroke-width="1.5" stroke-dasharray="3 2"/><text x="340" y="79" fill="rgba(59,142,248,0.4)" font-size="7" font-family="monospace" text-anchor="middle">3.0</text><text x="340" y="56" fill="rgba(59,142,248,0.25)" font-size="7" font-family="monospace" text-anchor="middle">TBD</text><text x="340" y="97" fill="rgba(59,142,248,0.2)" font-size="7" font-family="monospace" text-anchor="middle">coming</text></svg>`,
-   title:'WCAG 3.0 Is Coming: What\'s Changing and What It Means for PDF Accessibility',
-   excerpt:'WCAG 3.0 represents the most significant restructuring of web accessibility guidelines in 20 years. Here\'s what the draft says about PDF requirements.',
-   body:`<p>WCAG 3.0 is still in development, but its direction is clear enough that accessibility professionals need to start understanding what\'s changing and what\'s not.</p><h2>What\'s different about WCAG 3.0</h2><p>WCAG 3.0 moves away from the binary pass/fail model of 2.x toward a graduated conformance model with bronze, silver, and gold levels. The goal is to better capture the difference between technically compliant content that\'s still difficult to use and genuinely excellent accessibility.</p><h2>What this means for PDFs</h2><p>The substantive requirements for PDFs aren\'t expected to change dramatically — alt text, reading order, structure, and metadata will still be required. What\'s changing is how compliance is measured and reported.</p><div class="callout">📅 Practical guidance: achieve WCAG 2.1 AA conformance now. WCAG 3.0 won\'t be a legal mandate for years, and 2.1 AA compliance will provide a strong foundation for 3.0 when it arrives.</div>`
-  }
-];
-
-// ── BLOG RENDERING ENGINE ─────────────────────────────────
-const POSTS_PER_PAGE = 6;
-let blogPage = 1;
-let blogFilter = 'All';
-
-function getBlogTags() {
-  return ['All', ...new Set(posts.map(p => p.tag))];
-}
-function getFilteredPosts() {
-  return blogFilter === 'All' ? posts : posts.filter(p => p.tag === blogFilter);
-}
-function renderBlog() {
-  const filtered = getFilteredPosts();
-  const totalPages = Math.ceil(filtered.length / POSTS_PER_PAGE);
-  const start = (blogPage - 1) * POSTS_PER_PAGE;
-  const pagePosts = filtered.slice(start, start + POSTS_PER_PAGE);
-  const grid = document.getElementById('blog-grid');
-  if (!grid) return;
-  grid.innerHTML = pagePosts.map(p => {
-    const idx = posts.indexOf(p);
-    return `<div class="blog-card" onclick="openPost(${idx})">
-      <div class="blog-thumb">${p.svg}</div>
-      <div class="blog-body">
-        <div class="blog-tag">${p.tag}</div>
-        <div class="blog-title">${p.title}</div>
-        <div class="blog-excerpt">${p.excerpt}</div>
-        <div class="blog-meta"><span class="blog-date">${p.date}</span><span class="blog-read">${p.read} read</span></div>
-      </div></div>`;
-  }).join('');
-  const pag = document.getElementById('blog-pagination');
-  if (!pag) return;
-  let html = `<button class="pg-btn" onclick="setBlogPage(${blogPage-1})" ${blogPage===1?'disabled':''}>← Prev</button>`;
-  for (let i = 1; i <= totalPages; i++) {
-    html += `<button class="pg-btn ${i===blogPage?'active':''}" onclick="setBlogPage(${i})">${i}</button>`;
-  }
-  html += `<button class="pg-btn" onclick="setBlogPage(${blogPage+1})" ${blogPage===totalPages?'disabled':''}>Next →</button>`;
-  pag.innerHTML = html;
-}
-function renderBlogFilters() {
-  const c = document.getElementById('blog-filter-btns');
-  if (!c) return;
-  c.innerHTML = getBlogTags().map(tag =>
-    `<button class="filter-btn ${tag===blogFilter?'active':''}" onclick="setBlogFilter('${tag}')">${tag}</button>`
-  ).join('');
-}
-function setBlogPage(n) {
-  const total = Math.ceil(getFilteredPosts().length / POSTS_PER_PAGE);
-  blogPage = Math.max(1, Math.min(n, total));
-  renderBlog();
-  document.getElementById('page-blog')?.scrollIntoView({behavior:'smooth',block:'start'});
-}
-function setBlogFilter(tag) {
-  blogFilter = tag; blogPage = 1;
-  renderBlogFilters(); renderBlog();
-}
-renderBlogFilters();
-renderBlog();
-
-function openPost(i) {
-  const p = posts[i];
-  document.getElementById('bp-tag').textContent = p.tag;
-  document.getElementById('bp-title').textContent = p.title;
-  document.getElementById('bp-meta').textContent = p.date + ' · ' + p.read + ' read';
-  document.getElementById('bp-body').innerHTML = p.body;
-  document.getElementById('blog-post-modal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function closePost() {
-  document.getElementById('blog-post-modal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-// ── AUDIT PAGE ───────────────────────────────────────────
-let auditFile = null;
-function handleAuditDrop(e) {
-  e.preventDefault();
-  document.getElementById('audit-drop').classList.remove('dragover');
-  const f = e.dataTransfer.files[0];
-  if (f && f.type === 'application/pdf') setAuditFile(f);
-}
-function handleAuditFile(f) { if (f) setAuditFile(f); }
-function setAuditFile(f) {
-  auditFile = f;
-  document.getElementById('audit-drop').querySelector('div').textContent = '✓ ' + f.name;
-  checkAuditReady();
-}
-
-function checkAuditReady() {
-  const name  = document.getElementById('audit-name')?.value.trim();
-  const email = document.getElementById('audit-email')?.value.trim();
-  const btn   = document.getElementById('audit-submit');
-  if (!btn) return;
-  const hasFile  = !!auditFile;
-  const hasName  = name && name.length > 1;
-  const hasEmail = email && email.includes('@') && email.includes('.');
-  if (!hasName && !hasEmail && !hasFile) {
-    btn.disabled = true; btn.textContent = 'Enter your name and email to continue';
-  } else if (!hasName || !hasEmail) {
-    btn.disabled = true; btn.textContent = 'Enter your name and email to continue';
-  } else if (!hasFile) {
-    btn.disabled = true; btn.textContent = 'Select a PDF to analyze';
-  } else {
-    btn.disabled = false; btn.textContent = 'Analyze "' + auditFile.name + '"';
-  }
-}
-
-// Show "already used" state if audit was already completed
-function checkAuditUsed() {
-  if (localStorage.getItem('remedocs_audit_used')) {
-    document.getElementById('audit-upload-state').style.display = 'none';
-    document.getElementById('audit-processing').style.display = 'none';
-    document.getElementById('audit-result').style.display = 'none';
-    const box = document.querySelector('.audit-box');
-    if (box && !document.getElementById('audit-used-state')) {
-      const used = document.createElement('div');
-      used.id = 'audit-used-state';
-      used.style.cssText = 'padding:3rem 2rem;text-align:center;';
-      used.innerHTML = `
-        <div style="font-size:2rem;margin-bottom:1rem;">🔒</div>
-        <div style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.15rem;margin-bottom:.5rem;">You've already used your free audit</div>
-        <div style="font-size:.84rem;color:var(--text-2);line-height:1.7;max-width:360px;margin:0 auto 1.75rem;">The free audit is limited to one PDF per person. To audit more documents or get a full remediation quote, talk to our team.</div>
-        <button class="contact-inline-submit" style="max-width:260px;margin:0 auto;" onclick="openContact()">Get in touch with our team →</button>`;
-      box.appendChild(used);
-    }
-  }
-}
-
-const AUDIT_STEPS = [
-  'Parsing document structure…',
-  'Running OCR on image pages…',
-  'Auditing tag tree & reading order…',
-  'Checking alt text & image inventory…',
-  'Validating metadata & language…',
-  'Scoring WCAG 2.1 AA compliance…'
-];
-
-function runAudit() {
-  if (!auditFile) return;
-  // Validate file type
-  if (auditFile.type !== 'application/pdf') {
-    showAuditResult({
-      score: 0, level: 'Error',
-      summary: 'Please upload a PDF file. Other file types are not supported for accessibility auditing.',
-      issues: []
-    });
-    return;
-  }
-  // Validate file size (10MB max)
-  if (auditFile.size > 10 * 1024 * 1024) {
-    showAuditResult({
-      score: 0, level: 'Error',
-      summary: 'This PDF is too large (max 10MB). Sign up for a plan to scan larger documents.',
-      issues: []
-    });
-    return;
-  }
-  const name  = document.getElementById('audit-name').value.trim();
-  const email = document.getElementById('audit-email').value.trim();
-  if (!name || name.length < 2) {
-    const el = document.getElementById('audit-name');
-    el.style.borderColor = 'rgba(242,92,92,.5)'; el.focus();
-    setTimeout(() => el.style.borderColor = '', 1800); return;
-  }
-  if (!email || !email.includes('@') || !email.includes('.')) {
-    const el = document.getElementById('audit-email');
-    el.style.borderColor = 'rgba(242,92,92,.5)'; el.focus();
-    setTimeout(() => el.style.borderColor = '', 1800); return;
-  }
-  // Mark as used immediately so double-clicks / refreshes don't allow re-use
-  localStorage.setItem('remedocs_audit_used', '1');
-  // Switch to processing state
-  document.getElementById('audit-upload-state').style.display = 'none';
-  const proc = document.getElementById('audit-processing');
-  proc.style.display = 'block';
-  document.getElementById('audit-proc-name').textContent = auditFile.name;
-
-  // Build step indicators
-  const stepsEl = document.getElementById('audit-steps-list');
-  stepsEl.innerHTML = AUDIT_STEPS.map((s,i) =>
-    `<div id="as${i}" style="display:flex;align-items:center;gap:.65rem;font-size:.8rem;color:var(--text-2);">
-      <div id="asi${i}" style="width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-size:.6rem;flex-shrink:0;"></div>
-      <span>${s}</span></div>`
-  ).join('');
-
-  // Animate steps
-  let step = 0;
-  function tick() {
-    if (step > 0) {
-      const prev = document.getElementById('asi'+(step-1));
-      if(prev){prev.style.background='rgba(12,242,180,.15)';prev.style.borderColor='var(--mint)';prev.style.color='var(--mint)';prev.textContent='✓';}
-    }
-    if (step < AUDIT_STEPS.length) {
-      const cur = document.getElementById('asi'+step);
-      if(cur){cur.style.borderColor='var(--mint)';cur.style.borderTopColor='transparent';cur.style.animation='spin .7s linear infinite';}
-      document.getElementById('audit-fill').style.width = ((step+1)/AUDIT_STEPS.length*80)+'%';
-      step++;
-      setTimeout(tick, 600 + Math.random()*400);
-    } else {
-      document.getElementById('audit-fill').style.width='100%';
-      document.getElementById('audit-proc-status').textContent = 'Analysis complete.';
-      // Read PDF as base64 and call Claude API
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = reader.result.split(',')[1];
-        callClaudeAudit(base64);
-      };
-      reader.readAsDataURL(auditFile);
-    }
-  }
-  tick();
-}
-
-async function callClaudeAudit(base64) {
-  try {
-    const res = await fetch('https://audit.remedocs.com/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ base64 })
-    });
-
-    if (res.status === 429) {
-      showAuditResult({
-        score: 0, level: 'Rate Limited',
-        summary: 'You\'ve reached the free audit limit (3 per hour). Try again later or sign up for unlimited scans.',
-        issues: []
-      });
-      return;
-    }
-
-    if (res.status === 413) {
-      showAuditResult({
-        score: 0, level: 'Error',
-        summary: 'This PDF is too large for the free audit (max 10MB). Sign up to scan larger documents.',
-        issues: []
-      });
-      return;
-    }
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-    const raw = data.content.find(b => b.type === 'text')?.text || '{}';
-    let result;
-    try { result = JSON.parse(raw.replace(/```json|```/g, '')); }
-    catch { result = fallbackResult(); }
-    showAuditResult(result);
-  } catch(err) {
-    console.error('Audit error:', err);
-    showAuditResult(fallbackResult());
-  }
-}
-
-function fallbackResult() {
-  return {
-    score: 38, level: 'Needs Work',
-    summary: 'Analysis complete. Multiple accessibility barriers detected.',
-    issues: [
-      {title:'Untagged PDF structure',desc:'Document lacks semantic tags required for assistive technology.',sev:'high',criterion:'WCAG 1.3.1'},
-      {title:'Missing alternative text',desc:'Images do not have descriptive alt text.',sev:'high',criterion:'WCAG 1.1.1'},
-      {title:'No document language set',desc:'PDF does not specify its language in metadata.',sev:'med',criterion:'WCAG 3.1.1'},
-      {title:'Reading order issues',desc:'Content may be read in an illogical order by screen readers.',sev:'med',criterion:'WCAG 1.3.2'}
-    ]
-  };
-}
-
-function showAuditResult(r) {
-  document.getElementById('audit-processing').style.display = 'none';
-  const levelClass = r.score >= 90 ? 'pass' : r.score >= 75 ? 'pass' : r.score >= 50 ? 'warn' : 'fail';
-  const issuesHtml = (r.issues || []).map(iss => `
-    <div class="audit-issue">
-      <div class="audit-issue-sev ${iss.sev}"></div>
-      <div class="audit-issue-body">
-        <div class="audit-issue-title">${iss.title}</div>
-        <div class="audit-issue-desc">${iss.desc}</div>
-        <span class="audit-issue-badge ${iss.sev}">${iss.sev === 'high' ? 'Critical' : iss.sev === 'med' ? 'Warning' : 'Info'} · ${iss.criterion || ''}</span>
-      </div>
-    </div>`).join('');
-
-  document.getElementById('audit-result-content').innerHTML = `
-    <div class="audit-score-header">
-      <div>
-        <div class="audit-score-big ${levelClass}">${r.score}<span style="font-size:1.2rem">/100</span></div>
-        <div class="audit-score-lbl">Accessibility score · ${r.level}</div>
-      </div>
-      <div style="max-width:320px;text-align:right;font-size:.82rem;color:var(--text-2);line-height:1.6;">${r.summary}</div>
-    </div>
-    <div style="padding:.75rem 1.5rem .25rem;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);">Issues found (${(r.issues||[]).length})</div>
-    <div class="audit-issues-list">${issuesHtml}</div>`;
-
-  document.getElementById('audit-result').style.display = 'block';
-}
-
-function resetAudit() {
-  // One-time use — no reset allowed
-  checkAuditUsed();
-}
-</script>
+  </script>
 </body>
 </html>
