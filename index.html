@@ -1456,7 +1456,7 @@ function runAudit() {
 
 async function callClaudeAudit(base64) {
   try {
-    const res = await fetch('https://remedocs-audit-proxy.mitch-c80.workers.dev/', {
+    const res = await fetch('https://audit.remedocs.com/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ base64 })
