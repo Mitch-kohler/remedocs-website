@@ -23,8 +23,7 @@ const ALLOWED_ORIGINS = [
 // Map Stripe product IDs → plan names (fallback when metadata isn't set on payment link)
 const PRODUCT_PLAN_MAP = {
   'prod_U8Ey5Mrk9yEjSr': 'starter',
-  // Add Growth product ID here once created, e.g.:
-  // 'prod_XXXXXXXXXXXXXXX': 'growth',
+  'prod_U8EyPN0EfBplak': 'growth',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
