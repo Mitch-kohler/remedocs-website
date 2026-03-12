@@ -24,7 +24,9 @@
       <a href="/" class="nav-logo">RemeDocs</a>
       <div class="nav-links">
         <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
         <a href="#pricing">Pricing</a>
+        <a href="#blog">Blog</a>
         <a href="https://app.remedocs.com/auth/login" class="btn btn-outline btn-sm">Sign In</a>
       </div>
       <button class="mobile-menu-btn" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">
@@ -111,6 +113,64 @@
           </div>
           <h3>Secure & Private</h3>
           <p>Your documents are encrypted in transit and at rest. Files are automatically purged after processing. SOC 2 aligned practices.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2>How It Works</h2>
+        <p>Three simple steps to a compliant PDF. No accessibility specialist required.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="17 3 21 3 21 7"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </div>
+          <h3>Upload &amp; Analyze</h3>
+          <p>Drop your PDF in. RemeDocs scans for structural issues, missing tags, unreadable pages, and accessibility gaps against WCAG 2.1 criteria.</p>
+        </div>
+
+        <div class="step-connector">
+          <svg width="40" height="24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"><path d="M0 12h36M30 6l6 6-6 6"/></svg>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </div>
+          <h3>Automated Remediation</h3>
+          <p>The engine applies structure tagging, runs OCR on scanned pages, generates AI-powered alt text, corrects reading order, and sets document metadata.</p>
+        </div>
+
+        <div class="step-connector">
+          <svg width="40" height="24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"><path d="M0 12h36M30 6l6 6-6 6"/></svg>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <h3>Download &amp; Review</h3>
+          <p>Receive a remediated PDF with a full compliance report. Human-in-the-loop review is available before finalizing.</p>
+        </div>
+      </div>
+
+      <div class="standards-bar">
+        <div class="standards-label">Standards We Check Against</div>
+        <div class="standards-list">
+          <div class="standard-chip">WCAG 2.1 AA</div>
+          <div class="standard-chip">PDF/UA</div>
+          <div class="standard-chip">Section 508</div>
+          <div class="standard-chip">ADA Title II &amp; III</div>
+          <div class="standard-chip">EN 301 549</div>
         </div>
       </div>
     </div>
@@ -274,6 +334,60 @@
     </div>
   </section>
 
+  <!-- Blog -->
+  <section class="blog" id="blog">
+    <div class="container">
+      <div class="section-header">
+        <h2>Accessibility Insights</h2>
+        <p>Practical guides on PDF compliance, ADA law, WCAG standards, and building accessible document workflows.</p>
+      </div>
+
+      <div class="blog-grid">
+        <a class="blog-card" href="#">
+          <div class="blog-tag">Compliance</div>
+          <h3>ADA Title II Deadlines Are Here — What Every Government Agency Must Do Now</h3>
+          <p>Federal and state agencies face enforceable deadlines for digital accessibility. Here's what the law requires and how to get compliant before audits begin.</p>
+          <div class="blog-meta">Mar 5, 2026 &middot; 8 min read</div>
+        </a>
+
+        <a class="blog-card" href="#">
+          <div class="blog-tag">Technical</div>
+          <h3>HTML Overlays Are Not PDF Remediation: The Important Difference</h3>
+          <p>Many vendors sell overlay widgets as a compliance solution. We explain why overlays don't touch the underlying PDF and what real remediation looks like.</p>
+          <div class="blog-meta">Mar 2, 2026 &middot; 6 min read</div>
+        </a>
+
+        <a class="blog-card" href="#">
+          <div class="blog-tag">AI</div>
+          <h3>How AI Generates Alt Text for Complex PDF Images — And Where It Still Struggles</h3>
+          <p>Large language models can describe images with surprising accuracy. But charts, infographics, and decorative images still pose real challenges.</p>
+          <div class="blog-meta">Feb 27, 2026 &middot; 10 min read</div>
+        </a>
+
+        <a class="blog-card" href="#">
+          <div class="blog-tag">Standards</div>
+          <h3>Section 508 vs WCAG 2.1 AA vs PDF/UA: A Clear Guide to What Each Standard Requires</h3>
+          <p>Confused by overlapping accessibility standards? This guide breaks down the differences, where they overlap, and which ones apply to your organization.</p>
+          <div class="blog-meta">Feb 22, 2026 &middot; 12 min read</div>
+        </a>
+
+        <a class="blog-card" href="#">
+          <div class="blog-tag">Legal</div>
+          <h3>The Most Common Accessibility Lawsuit Triggers in 2025 — And How to Avoid Them</h3>
+          <p>ADA lawsuits targeting digital content hit record numbers. We analyze the most common triggers and the straightforward steps to stay protected.</p>
+          <div class="blog-meta">Feb 18, 2026 &middot; 7 min read</div>
+        </a>
+
+        <a class="blog-card" href="#">
+          <div class="blog-tag">Guide</div>
+          <h3>Building an Accessible Document Pipeline: How to Remediate at Scale Without Hiring an Army</h3>
+          <p>Enterprise organizations often have thousands of PDFs. Learn how to build an automated pipeline that remediates documents as they're published.</p>
+          <div class="blog-meta">Feb 14, 2026 &middot; 9 min read</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer class="footer">
     <div class="container footer-inner">
@@ -284,6 +398,7 @@
       <div class="footer-links">
         <a href="https://app.remedocs.com/auth/login">Sign In</a>
         <a href="https://app.remedocs.com/auth/register?plan=free">Get Started</a>
+        <a href="#blog">Blog</a>
         <a href="mailto:sales@remedocs.com">Contact Sales</a>
       </div>
       <div class="footer-copy">
