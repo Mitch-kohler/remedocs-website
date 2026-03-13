@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>How It Works — RemeDocs PDF Remediation Pipeline</title>
+<meta name="description" content="See how RemeDocs' three-phase pipeline turns any PDF into a fully WCAG 2.1 AA, PDF/UA, and Section 508 compliant accessible document in seconds."/>
+<link rel="canonical" href="https://remedocs.com/how-it-works"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07090D;--bg-1:#0C0F15;--bg-2:#111520;--bg-3:#161B28;
+  --line:rgba(255,255,255,0.07);--line-2:rgba(255,255,255,0.12);
+  --text:#E8EAF0;--text-2:#8A8FA8;--text-3:#545870;
+  --mint:#0CF2B4;--mint-dim:rgba(12,242,180,0.09);--mint-glow:rgba(12,242,180,0.22);
+  --blue:#3B8EF8;--red:#F25C5C;--amber:#F2A93B;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9998;opacity:.5;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 3rem;height:60px;border-bottom:1px solid var(--line);background:rgba(7,9,13,0.82);backdrop-filter:blur(20px) saturate(1.4);transition:height .3s;}
+.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.15rem;letter-spacing:-.03em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--mint);display:inline-block;}
+nav ul{display:flex;gap:2rem;list-style:none;align-items:center;}
+nav ul a{color:var(--text-2);text-decoration:none;font-size:.82rem;font-weight:500;letter-spacing:.01em;transition:color .15s;}
+nav ul a:hover{color:var(--text);}
+nav ul a.nav-active{color:var(--text);}
+.nav-btn{background:var(--mint);color:#04120D;font-family:'Instrument Sans',sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.02em;padding:.45rem 1.1rem;border-radius:6px;text-decoration:none;transition:opacity .15s,box-shadow .15s;}
+.nav-btn:hover{opacity:.88;box-shadow:0 0 20px var(--mint-glow);}
+.nav-btn-ghost{border:1px solid var(--line-2);color:var(--text-2);font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:.8rem;letter-spacing:.01em;padding:.43rem 1.1rem;border-radius:6px;text-decoration:none;transition:border-color .15s,color .15s;}
+.nav-btn-ghost:hover{border-color:var(--text-2);color:var(--text);}
+
+/* SHARED SECTION */
+section{padding:6rem 3rem;}
+.sec-eye{font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--mint);margin-bottom:.75rem;}
+h2{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.9rem,3.2vw,2.6rem);font-weight:700;letter-spacing:-.03em;line-height:1.08;margin-bottom:.85rem;}
+
+/* HIW HERO */
+.hiw-hero{padding:8rem 3rem 4rem;text-align:center;border-bottom:1px solid var(--line);background:var(--bg-1);}
+.hiw-hero h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:-.04em;margin-bottom:.85rem;}
+.hiw-hero p{color:var(--text-2);font-size:.97rem;max-width:520px;margin:0 auto;line-height:1.75;}
+
+/* HIW PHASES */
+.hiw-phases{max-width:1000px;margin:0 auto;padding:5rem 3rem;display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+.hiw-phase{background:var(--bg-1);padding:2.5rem;display:grid;grid-template-columns:200px 1fr;gap:3rem;align-items:start;}
+.hiw-phase-label{display:flex;flex-direction:column;gap:.5rem;padding-top:.15rem;}
+.hiw-phase-num{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:3rem;letter-spacing:-.06em;line-height:1;color:var(--bg-3);}
+.hiw-phase-name{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;}
+.hiw-phase-tag{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .6rem;border-radius:100px;border:1px solid;width:fit-content;margin-top:.2rem;}
+.hiw-phase-tag.a{color:var(--amber);border-color:rgba(242,169,59,.3);background:rgba(242,169,59,.07);}
+.hiw-phase-tag.r{color:var(--mint);border-color:rgba(12,242,180,.3);background:var(--mint-dim);}
+.hiw-phase-tag.o{color:var(--blue);border-color:rgba(59,142,248,.3);background:rgba(59,142,248,.07);}
+.hiw-phase-content h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.2rem;margin-bottom:.5rem;}
+.hiw-phase-content p{font-size:.85rem;color:var(--text-2);line-height:1.75;margin-bottom:1.25rem;}
+.hiw-checks{display:flex;flex-direction:column;gap:.5rem;}
+.hiw-check{display:flex;align-items:flex-start;gap:.75rem;font-size:.82rem;color:var(--text-2);line-height:1.5;}
+.hiw-check-dot{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:.55rem;flex-shrink:0;margin-top:.1rem;}
+.hiw-check-dot.a{background:rgba(242,169,59,.12);color:var(--amber);}
+.hiw-check-dot.r{background:rgba(12,242,180,.1);color:var(--mint);}
+.hiw-check-dot.o{background:rgba(59,142,248,.1);color:var(--blue);}
+.hiw-check strong{color:var(--text);font-weight:500;}
+
+/* HIW CTA BAND */
+.hiw-cta-band{text-align:center;padding:4rem 3rem;border-top:1px solid var(--line);}
+.hiw-cta-band h2{font-family:'Bricolage Grotesque',sans-serif;font-size:1.8rem;font-weight:700;letter-spacing:-.03em;margin-bottom:.6rem;}
+.hiw-cta-band p{color:var(--text-2);font-size:.88rem;margin-bottom:1.75rem;}
+
+/* BUTTONS */
+.btn-p{background:var(--mint);color:#04120D;font-family:'Instrument Sans',sans-serif;font-weight:600;font-size:.88rem;padding:.7rem 1.75rem;border-radius:8px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:box-shadow .2s,opacity .15s;display:inline-flex;align-items:center;gap:.4rem;}
+.btn-p:hover{box-shadow:0 6px 30px var(--mint-glow);opacity:.92;}
+
+/* FOOTER */
+footer{padding:2.25rem 3rem;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.ft-links{display:flex;gap:1.75rem;list-style:none;}
+.ft-links a{font-size:.78rem;color:var(--text-3);text-decoration:none;transition:color .15s;}
+.ft-links a:hover{color:var(--text-2);}
+.ft-copy{font-size:.73rem;color:var(--text-3);}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+  nav{padding:0 1.5rem;}
+  nav ul{gap:1rem;}
+  .hiw-phase{grid-template-columns:1fr;}
+  .hiw-cta-band{padding:3rem 1.5rem;}
+  footer{padding:2rem 1.5rem;flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo"><span class="logo-dot"></span>RemeDocs</a>
+  <ul>
+    <li><a href="/how-it-works" class="nav-active">How it works</a></li>
+    <li><a href="/blog">Blog</a></li>
+    <li><a href="/pricing">Pricing</a></li>
+    <li><a href="/free-pdf-accessibility-checker" class="nav-btn-ghost">Free PDF audit</a></li>
+    <li><a href="/" class="nav-btn">Home</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hiw-hero">
+  <div style="max-width:1100px;margin:0 auto;text-align:left;">
+    <div class="sec-eye">Under the hood</div>
+    <h1>How RemeDocs works</h1>
+    <p>A three-phase pipeline that turns any PDF — scanned, complex, or legacy — into a fully compliant accessible document in seconds.</p>
+  </div>
+</div>
+
+<!-- THREE-PHASE CONTENT -->
+<div style="max-width:1100px;margin:0 auto;padding:4rem 3rem;">
+  <div style="display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:16px;overflow:hidden;">
+    <!-- Phase 1 -->
+    <div class="hiw-phase">
+      <div class="hiw-phase-label">
+        <div class="hiw-phase-num" style="color:rgba(242,169,59,.2)">01</div>
+        <div class="hiw-phase-name">Analysis</div>
+        <div class="hiw-phase-tag a">Phase 1</div>
+      </div>
+      <div class="hiw-phase-content">
+        <h3>Document intelligence &amp; structure detection</h3>
+        <p>Before any remediation begins, RemeDocs builds a full map of your document — page layout, content types, reading flow, and existing tag structure. This analysis phase is what makes the downstream fixes accurate rather than guessed.</p>
+        <div class="hiw-checks">
+          <div class="hiw-check"><div class="hiw-check-dot a">&#10003;</div><div><strong>OCR &amp; text extraction</strong> — Tesseract-powered OCR for scanned pages, PyMuPDF for native text. Handles handwriting, mixed content, and multi-language documents.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot a">&#10003;</div><div><strong>Layout classification</strong> — Detects single-column, multi-column, table-heavy, form, and mixed layouts. Each gets routed to the appropriate remediation path.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot a">&#10003;</div><div><strong>Reading order inference</strong> — Uses spatial analysis and semantic heuristics to establish logical content flow, even in complex multi-column and sidebar layouts.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot a">&#10003;</div><div><strong>Existing tag audit</strong> — Evaluates any pre-existing tags for accuracy. Broken or malformed tags are flagged and re-built rather than simply preserved.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot a">&#10003;</div><div><strong>Image inventory</strong> — Catalogs every image, figure, chart, and decorative element. Each is classified as informational or decorative to guide alt text generation.</div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Phase 2 -->
+    <div class="hiw-phase" style="background:var(--bg-2);">
+      <div class="hiw-phase-label">
+        <div class="hiw-phase-num" style="color:rgba(12,242,180,.15)">02</div>
+        <div class="hiw-phase-name">Remediation</div>
+        <div class="hiw-phase-tag r">Phase 2</div>
+      </div>
+      <div class="hiw-phase-content">
+        <h3>AI-powered accessibility fixes</h3>
+        <p>With the document map in hand, RemeDocs applies a full suite of accessibility fixes — structural tagging, alt text generation, heading hierarchy, and metadata — programmatically and at scale.</p>
+        <div class="hiw-checks">
+          <div class="hiw-check"><div class="hiw-check-dot r">&#10003;</div><div><strong>Full PDF tagging</strong> — Builds a complete tag tree: Document, Part, Article, Section, P, H1–H6, Table, TR, TD, Figure, and Span tags per the PDF/UA specification.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot r">&#10003;</div><div><strong>AI alt text</strong> — Every informational image is described by a vision model (Claude). Descriptions capture content, context, and purpose — not just visual appearance.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot r">&#10003;</div><div><strong>Heading hierarchy repair</strong> — Detects visual heading styles and maps them to semantic H1–H6 levels. Skipped levels and ambiguous headings are resolved automatically.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot r">&#10003;</div><div><strong>Table structure</strong> — Identifies header rows, scope attributes, and merged cells. Complex tables get TH/TD mapping with proper scope and id/headers relationships.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot r">&#10003;</div><div><strong>Link text remediation</strong> — "Click here" and bare-URL links are rewritten to be descriptive. Anchor text is inferred from surrounding context.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot r">&#10003;</div><div><strong>Language &amp; metadata</strong> — Document language is set in XMP metadata and the PDF catalog. Title, author, and subject are populated or corrected.</div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Phase 3 -->
+    <div class="hiw-phase">
+      <div class="hiw-phase-label">
+        <div class="hiw-phase-num" style="color:rgba(59,142,248,.15)">03</div>
+        <div class="hiw-phase-name">Output</div>
+        <div class="hiw-phase-tag o">Phase 3</div>
+      </div>
+      <div class="hiw-phase-content">
+        <h3>Compliant file delivery &amp; audit trail</h3>
+        <p>The remediated PDF is packaged to the PDF/UA-1 specification, validated against WCAG 2.1 AA, and delivered with a full audit certificate. Every fix is logged for traceability.</p>
+        <div class="hiw-checks">
+          <div class="hiw-check"><div class="hiw-check-dot o">&#10003;</div><div><strong>PDF/UA-1 packaging</strong> — The output PDF is written to ISO 14289-1 (PDF/UA) standard using pikepdf. DisplayDocTitle is set, tab order is standardized, and the XMP metadata includes the PDF/UA identifier.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot o">&#10003;</div><div><strong>Automated validation</strong> — The output is checked with PAC 2024 and VeraPDF rules before delivery. Issues that can't be auto-resolved are flagged in the audit report.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot o">&#10003;</div><div><strong>Audit certificate</strong> — Every document gets a signed PDF/UA conformance certificate with a timestamp, issue log, fix summary, and test results. Suitable for legal and compliance records.</div></div>
+          <div class="hiw-check"><div class="hiw-check-dot o">&#10003;</div><div><strong>API delivery</strong> — Remediated files are returned via REST API, S3-compatible storage, or webhook callback. Async processing with job tracking for large batches.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="hiw-cta-band">
+    <div class="sec-eye">Get started</div>
+    <h2>See it on your own documents</h2>
+    <p>Upload a PDF and get a free accessibility audit — no credit card, no commitment.</p>
+    <a href="/free-pdf-accessibility-checker" class="btn-p">Get your free audit &#8594;</a>
+  </div>
+</div>
+
+<footer>
+  <a href="/" class="logo"><span class="logo-dot"></span>RemeDocs</a>
+  <ul class="ft-links">
+    <li><a href="#">Docs</a></li>
+    <li><a href="#">API Reference</a></li>
+    <li><a href="/blog">Blog</a></li>
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+  </ul>
+  <div class="ft-copy">&copy; 2026 RemeDocs, Inc.</div>
+</footer>
+
+</body>
+</html>

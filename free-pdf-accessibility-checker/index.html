@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Free PDF Accessibility Checker | WCAG 2.1 AA Compliance Audit | RemeDocs</title>
+<meta name="description" content="Check your PDF for WCAG 2.1 AA, Section 508, and PDF/UA compliance issues instantly. Free online tool — no account required. Get a detailed accessibility report in seconds."/>
+<link rel="canonical" href="https://remedocs.com/free-pdf-accessibility-checker"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#07090D;--bg-1:#0C0F15;--bg-2:#111520;--bg-3:#161B28;
+  --line:rgba(255,255,255,0.07);--line-2:rgba(255,255,255,0.12);
+  --text:#E8EAF0;--text-2:#8A8FA8;--text-3:#545870;
+  --mint:#0CF2B4;--mint-dim:rgba(12,242,180,0.09);--mint-glow:rgba(12,242,180,0.22);
+  --blue:#3B8EF8;--red:#F25C5C;--amber:#F2A93B;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Instrument Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9998;opacity:.5;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 3rem;height:60px;border-bottom:1px solid var(--line);background:rgba(7,9,13,0.82);backdrop-filter:blur(20px) saturate(1.4);}
+.logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.15rem;letter-spacing:-.03em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--mint);display:inline-block;}
+nav ul{display:flex;gap:2rem;list-style:none;align-items:center;}
+nav ul a{color:var(--text-2);text-decoration:none;font-size:.82rem;font-weight:500;letter-spacing:.01em;transition:color .15s;}
+nav ul a:hover,nav ul a.nav-active{color:var(--text);}
+.nav-btn{background:var(--mint);color:#04120D;font-family:'Instrument Sans',sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.02em;padding:.45rem 1.1rem;border-radius:6px;text-decoration:none;transition:opacity .15s,box-shadow .15s;}
+.nav-btn:hover{opacity:.88;box-shadow:0 0 20px var(--mint-glow);}
+.nav-btn-ghost{border:1px solid var(--line-2);color:var(--text-2);font-family:'Instrument Sans',sans-serif;font-weight:500;font-size:.8rem;letter-spacing:.01em;padding:.43rem 1.1rem;border-radius:6px;text-decoration:none;transition:border-color .15s,color .15s;}
+.nav-btn-ghost:hover{border-color:var(--text-2);color:var(--text);}
+
+/* HERO */
+.hero{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 3rem 5rem;text-align:center;position:relative;overflow:hidden;}
+.hero-glow{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:900px;height:500px;background:radial-gradient(ellipse at 50% 0%,rgba(12,242,180,.13) 0%,transparent 70%);pointer-events:none;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 30%,transparent 70%);pointer-events:none;}
+.pill{display:inline-flex;align-items:center;gap:.45rem;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);border:1px solid rgba(12,242,180,.25);background:var(--mint-dim);padding:.3rem .85rem;border-radius:100px;margin-bottom:1.75rem;}
+.pill-dot{width:5px;height:5px;border-radius:50%;background:var(--mint);animation:blink 2s ease infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;letter-spacing:-.04em;line-height:1.06;margin-bottom:1.25rem;}
+h1 .accent{background:linear-gradient(135deg,var(--mint) 0%,#3BFFD4 50%,#0CF2B4 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.05rem;font-weight:400;color:var(--text-2);max-width:540px;margin:0 auto 2.5rem;line-height:1.75;}
+.hero-ctas{display:flex;gap:.85rem;align-items:center;justify-content:center;margin-bottom:2rem;}
+.btn-p{background:var(--mint);color:#04120D;font-family:'Instrument Sans',sans-serif;font-weight:600;font-size:.88rem;padding:.7rem 1.75rem;border-radius:8px;border:none;cursor:pointer;text-decoration:none;letter-spacing:.01em;transition:box-shadow .2s,opacity .15s;display:inline-flex;align-items:center;gap:.4rem;}
+.btn-p:hover{box-shadow:0 6px 30px var(--mint-glow);opacity:.92;}
+.btn-g{color:var(--text-2);font-size:.88rem;text-decoration:none;border:1px solid var(--line-2);padding:.7rem 1.5rem;border-radius:8px;transition:border-color .15s,color .15s;display:inline-flex;align-items:center;gap:.4rem;}
+.btn-g:hover{border-color:var(--text-2);color:var(--text);}
+.hero-note{font-size:.78rem;color:var(--text-3);margin-top:.5rem;}
+
+/* SECTIONS */
+.section{padding:5rem 3rem;max-width:1100px;margin:0 auto;}
+.section-label{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);margin-bottom:.75rem;}
+.section h2{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;letter-spacing:-.03em;line-height:1.12;margin-bottom:1rem;}
+.section p.lead{font-size:.95rem;color:var(--text-2);line-height:1.75;max-width:620px;}
+.section-divider{border:none;border-top:1px solid var(--line);margin:0;}
+
+/* PIPELINE STEPS */
+.pipeline{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2.5rem;position:relative;}
+.pipeline::before{content:'';position:absolute;top:50%;left:calc(33.33% - .5rem);right:calc(33.33% - .5rem);height:1px;background:var(--line-2);z-index:0;}
+.pipe-step{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:2rem;text-align:center;position:relative;z-index:1;transition:border-color .2s,transform .2s;}
+.pipe-step:hover{border-color:var(--line-2);transform:translateY(-2px);}
+.pipe-num{width:36px;height:36px;border-radius:50%;background:var(--mint-dim);border:1px solid rgba(12,242,180,.25);display:flex;align-items:center;justify-content:center;margin:0 auto .9rem;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.85rem;color:var(--mint);}
+.pipe-step h3{font-family:'Bricolage Grotesque',sans-serif;font-size:1.05rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.5rem;}
+.pipe-step p{font-size:.82rem;color:var(--text-2);line-height:1.7;}
+
+/* CHECK GRID */
+.check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.25rem;margin-top:2.5rem;}
+.check-card{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:1.5rem;display:flex;align-items:flex-start;gap:.9rem;transition:border-color .2s;}
+.check-card:hover{border-color:var(--line-2);}
+.check-icon{width:32px;height:32px;border-radius:8px;background:var(--mint-dim);border:1px solid rgba(12,242,180,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.check-icon svg{width:14px;height:14px;}
+.check-card h3{font-family:'Bricolage Grotesque',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:-.02em;margin-bottom:.3rem;}
+.check-card p{font-size:.78rem;color:var(--text-2);line-height:1.65;}
+
+/* STANDARDS */
+.standards-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:2.5rem;}
+.standard-card{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:2rem;text-align:center;transition:border-color .2s;}
+.standard-card:hover{border-color:var(--line-2);}
+.standard-badge{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:-.03em;margin-bottom:.5rem;color:var(--mint);}
+.standard-card h3{font-family:'Bricolage Grotesque',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.4rem;}
+.standard-card p{font-size:.8rem;color:var(--text-2);line-height:1.7;}
+
+/* CTA SECTION */
+.cta-section{padding:5rem 3rem;text-align:center;}
+.cta-box{max-width:680px;margin:0 auto;background:var(--bg-1);border:1px solid rgba(12,242,180,.2);border-radius:20px;padding:3.5rem 2.5rem;position:relative;overflow:hidden;}
+.cta-glow{position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:500px;height:300px;background:radial-gradient(ellipse at 50% 0%,rgba(12,242,180,.1) 0%,transparent 70%);pointer-events:none;}
+.cta-box h2{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(1.6rem,3vw,2rem);font-weight:700;letter-spacing:-.03em;margin-bottom:.75rem;position:relative;}
+.cta-box p{font-size:.92rem;color:var(--text-2);line-height:1.7;max-width:440px;margin:0 auto 2rem;position:relative;}
+.cta-box .btn-p{position:relative;}
+
+/* FOOTER */
+footer{border-top:1px solid var(--line);padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.footer-logo{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1rem;letter-spacing:-.03em;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.footer-links{display:flex;gap:1.5rem;}
+.footer-links a{font-size:.75rem;color:var(--text-3);text-decoration:none;transition:color .15s;}
+.footer-links a:hover{color:var(--text-2);}
+.footer-copy{font-size:.72rem;color:var(--text-3);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.fade-up{animation:fadeUp .5s ease both;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .pipeline,.check-grid,.standards-row{grid-template-columns:1fr;}
+  .pipeline::before{display:none;}
+}
+@media(max-width:600px){
+  .hero{padding:110px 1.5rem 3.5rem;}
+  .section{padding:3rem 1.5rem;}
+  .cta-section{padding:3rem 1.5rem;}
+  nav{padding:0 1.25rem;}
+  .nav-links{display:none;}
+  footer{flex-direction:column;align-items:flex-start;padding:1.5rem;}
+  .hero-ctas{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo"><span class="logo-dot"></span>RemeDocs</a>
+  <ul class="nav-links">
+    <li><a href="/how-it-works">How it works</a></li>
+    <li><a href="/blog">Blog</a></li>
+    <li><a href="/pricing">Pricing</a></li>
+    <li><a href="/free-pdf-accessibility-checker" class="nav-btn-ghost nav-active">Free PDF audit</a></li>
+    <li><a href="https://app.remedocs.com" class="nav-btn">Open app</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+  <div class="pill fade-up"><span class="pill-dot"></span>Free Tool</div>
+  <h1 class="fade-up" style="animation-delay:.08s">Free PDF<br><span class="accent">Accessibility Checker</span></h1>
+  <p class="hero-sub fade-up" style="animation-delay:.15s">Instantly audit any PDF for WCAG 2.1 AA, PDF/UA-1, and Section 508 compliance issues. Get a detailed report in seconds &mdash; no account required.</p>
+  <div class="hero-ctas fade-up" style="animation-delay:.22s">
+    <a href="https://app.remedocs.com" class="btn-p">Check your PDF now &rarr;</a>
+    <a href="/pdf-remediation-software" class="btn-g">Learn about remediation</a>
+  </div>
+  <p class="hero-note fade-up" style="animation-delay:.3s">No sign-up needed. Your file is processed securely and never stored.</p>
+</section>
+
+<hr class="section-divider"/>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="section-label">How It Works</div>
+  <h2>Three steps to a complete accessibility audit</h2>
+  <p class="lead">No software to install, no account to create. Upload your PDF and get actionable results immediately.</p>
+
+  <div class="pipeline">
+    <div class="pipe-step fade-up">
+      <div class="pipe-num">1</div>
+      <h3>Upload</h3>
+      <p>Drag and drop your PDF or click to browse. Files are transmitted over HTTPS and processed in an isolated environment.</p>
+    </div>
+    <div class="pipe-step fade-up" style="animation-delay:.1s">
+      <div class="pipe-num">2</div>
+      <h3>Analyze</h3>
+      <p>Our engine inspects the PDF's tag structure, images, reading order, metadata, headings, tables, and links against accessibility standards.</p>
+    </div>
+    <div class="pipe-step fade-up" style="animation-delay:.2s">
+      <div class="pipe-num">3</div>
+      <h3>Get Report</h3>
+      <p>Receive a detailed, issue-by-issue report showing exactly what passed, what failed, and how to fix each problem.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider"/>
+
+<!-- WHAT WE CHECK -->
+<section class="section">
+  <div class="section-label">What We Check</div>
+  <h2>A comprehensive accessibility audit, not a surface scan</h2>
+  <p class="lead">We test for the issues that actually cause screen readers, assistive technology, and compliance auditors to flag your PDFs.</p>
+
+  <div class="check-grid">
+    <div class="check-card fade-up">
+      <div class="check-icon">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M3 3h8v8H3z" stroke="#0CF2B4" stroke-width="1.2"/><path d="M5 6h4M5 8h3" stroke="#0CF2B4" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h3>Tag structure</h3>
+        <p>Verifies that the PDF has a complete, logical tag tree with correct nesting and role mappings.</p>
+      </div>
+    </div>
+    <div class="check-card fade-up" style="animation-delay:.05s">
+      <div class="check-icon">
+        <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="3" width="10" height="8" rx="1.5" stroke="#0CF2B4" stroke-width="1.2"/><path d="M5 8l1.5-2 1.5 1.5L10 5" stroke="#0CF2B4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <h3>Alt text</h3>
+        <p>Checks that every image and figure has meaningful alternative text, and flags decorative images missing artifact tagging.</p>
+      </div>
+    </div>
+    <div class="check-card fade-up" style="animation-delay:.1s">
+      <div class="check-icon">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M3 3v8M3 7h8M7 3v8" stroke="#0CF2B4" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h3>Reading order</h3>
+        <p>Validates that content flows in the correct logical sequence, especially in multi-column layouts and complex designs.</p>
+      </div>
+    </div>
+    <div class="check-card fade-up" style="animation-delay:.15s">
+      <div class="check-icon">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M3 3h8M3 6.5h5.5M3 10h3.5" stroke="#0CF2B4" stroke-width="1.2" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h3>Headings</h3>
+        <p>Ensures heading levels are properly nested (H1 through H6) and that the document outline is navigable.</p>
+      </div>
+    </div>
+    <div class="check-card fade-up" style="animation-delay:.2s">
+      <div class="check-icon">
+        <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="10" height="10" rx="1" stroke="#0CF2B4" stroke-width="1.2"/><path d="M2 5.5h10M2 8.5h10M6 2v10" stroke="#0CF2B4" stroke-width=".8" opacity=".5"/></svg>
+      </div>
+      <div>
+        <h3>Tables</h3>
+        <p>Confirms that data tables have proper header cells, scope attributes, and summary information for screen reader navigation.</p>
+      </div>
+    </div>
+    <div class="check-card fade-up" style="animation-delay:.25s">
+      <div class="check-icon">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M2 7h3M9 7h3" stroke="#0CF2B4" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="2.5" stroke="#0CF2B4" stroke-width="1.2"/></svg>
+      </div>
+      <div>
+        <h3>Language</h3>
+        <p>Detects whether the document language is set and whether language changes within the content are properly marked.</p>
+      </div>
+    </div>
+    <div class="check-card fade-up" style="animation-delay:.3s">
+      <div class="check-icon">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M4 2v10M4 2l5 3-5 3" stroke="#0CF2B4" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <h3>Bookmarks</h3>
+        <p>Checks for a bookmark tree that mirrors the document's heading structure, enabling quick navigation in long PDFs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider"/>
+
+<!-- STANDARDS -->
+<section class="section">
+  <div class="section-label">Standards Covered</div>
+  <h2>Tested against every major accessibility standard</h2>
+  <p class="lead">Our checker validates your PDF against all three standards simultaneously and tells you exactly where each one fails.</p>
+
+  <div class="standards-row">
+    <div class="standard-card fade-up">
+      <div class="standard-badge">WCAG 2.1 AA</div>
+      <h3>Web Content Accessibility Guidelines</h3>
+      <p>The international benchmark for digital accessibility. We test every applicable Level AA success criterion for document content.</p>
+    </div>
+    <div class="standard-card fade-up" style="animation-delay:.1s">
+      <div class="standard-badge">PDF/UA-1</div>
+      <h3>ISO 14289-1</h3>
+      <p>The ISO standard dedicated to PDF accessibility. We verify tag structure, role mappings, and metadata requirements specific to PDF/UA.</p>
+    </div>
+    <div class="standard-card fade-up" style="animation-delay:.2s">
+      <div class="standard-badge">Section 508</div>
+      <h3>U.S. Federal Accessibility Law</h3>
+      <p>Mandatory for federal agencies and contractors. Our report maps each issue to the relevant 508 requirement for straightforward compliance.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-box">
+    <div class="cta-glow"></div>
+    <h2>Ready to check your PDF?</h2>
+    <p>Upload your document and get a complete accessibility report in seconds. Free, fast, and no account required.</p>
+    <a href="https://app.remedocs.com" class="btn-p">Launch the checker &rarr;</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="/" class="footer-logo"><span class="logo-dot"></span>RemeDocs</a>
+  <div class="footer-links">
+    <a href="/how-it-works">How it works</a>
+    <a href="/blog">Blog</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/pdf-remediation-software">PDF remediation</a>
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+  </div>
+  <span class="footer-copy">&copy; 2026 RemeDocs, Inc.</span>
+</footer>
+
+</body>
+</html>
